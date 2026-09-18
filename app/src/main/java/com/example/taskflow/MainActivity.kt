@@ -1,22 +1,21 @@
 /*
  *
- *  * TaskFlow - An Android project demonstrating modern Clean Architecture,
- *  * Jetpack Compose, and Unidirectional Data Flow.
- *  *
- *  * Copyright (C) 2026 Khoa Ngo
- *  *
- *  * Licensed under the Apache License, Version 2.0 (the "License");
- *  * you may not use this file except in compliance with the License.
- *  * You may obtain a copy of the License at
- *  *
- *  *      http://www.apache.org/licenses/LICENSE-2.0
- *  *
- *  * Unless required by applicable law or agreed to in writing, software
- *  * distributed under the License is distributed on an "AS IS" BASIS,
- *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the License for the specific language governing permissions and
- *  * limitations under the License.
+ * TaskFlow - An Android project demonstrating modern Clean Architecture,
+ * Jetpack Compose, and Unidirectional Data Flow.
  *
+ * Copyright (C) 2026 Khoa Ngo
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.example.taskflow
@@ -34,9 +33,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import com.example.taskflow.addTaskUseCase
 import com.example.taskflow.data.source.InMemoryTaskDataSource
 import com.example.taskflow.domain.TaskValidator
 import com.example.taskflow.domain.model.Task
+import com.example.taskflow.domain.repository.TaskRepositoryImpl
+import com.example.taskflow.domain.usecase.AddTaskUseCase
+import com.example.taskflow.domain.usecase.DeteleTaskUseCase
+import com.example.taskflow.domain.usecase.GetTasksUseCase
+import com.example.taskflow.domain.usecase.ToggleTaskUseCase
 import com.example.taskflow.ui.TaskScreen
 import com.example.taskflow.ui.theme.TaskFlowTheme
 
@@ -58,13 +63,19 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-private val dataSource = InMemoryTaskDataSource()
+private val _dataSource = InMemoryTaskDataSource()
+private val _repository = TaskRepositoryImpl(_dataSource)
+private val addTaskUseCase = AddTaskUseCase(_repository)
+private val getTaskUseCase = GetTasksUseCase(_repository)
+private val deleteTaskUseCase = DeteleTaskUseCase(_repository)
+private val toggleTaskUseCase = ToggleTaskUseCase(_repository)
+
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier) {
 
     var tasks by remember {
         mutableStateOf(
-            dataSource.getTasks()
+            getTaskUseCase()
         )
     }
 
@@ -76,20 +87,19 @@ fun HomeScreen(modifier: Modifier = Modifier) {
         tasks,
 
         onTaskClick = {
-            val task = it.copy(completed = !it.completed)
-            dataSource.updateTask(task)
-            tasks = dataSource.getTasks()
+            if (toggleTaskUseCase(it)) {
+                tasks = getTaskUseCase()
+            }
         },
 
         onAddTaskClick = {
-            if (TaskValidator.isValidTitle(newTaskTitle)) {
-                val task = Task(
-                    id = tasks.size + 1,
-                    title = newTaskTitle,
-                )
-                dataSource.addTask(task)
-                tasks = dataSource.getTasks()
+            val success = addTaskUseCase (
+                title = newTaskTitle,
+                nextId = tasks.size + 1,
+            )
+            if (success) {
                 newTaskTitle = ""
+                tasks = getTaskUseCase()
             }
         },
 
@@ -98,8 +108,8 @@ fun HomeScreen(modifier: Modifier = Modifier) {
             newTaskTitle = it
         },
         onRemove = {
-            dataSource.removeTask(it)
-            tasks = dataSource.getTasks()
+            deleteTaskUseCase(it)
+            tasks = getTaskUseCase()
         }
     )
 }
