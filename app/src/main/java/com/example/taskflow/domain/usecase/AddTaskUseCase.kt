@@ -25,15 +25,11 @@ import com.example.taskflow.domain.model.Task
 import com.example.taskflow.domain.repository.TaskRepository
 
 class AddTaskUseCase(private val repository: TaskRepository) {
-    operator fun invoke(title: String, nextId: Int): Boolean {
+    operator fun invoke(title: String): Boolean {
         if (!TaskValidator.isValidTitle(title)) {
             return false
         }
-        val task = Task (
-            id = nextId,
-            title = title.trim()
-        )
-        repository.addTask(task)
+        repository.addTask(title)
         return true
     }
 }

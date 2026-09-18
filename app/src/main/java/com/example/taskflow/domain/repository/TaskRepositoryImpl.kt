@@ -29,7 +29,11 @@ class TaskRepositoryImpl (private val dataSource: InMemoryTaskDataSource) : Task
         return dataSource.getTasks()
     }
 
-    override fun addTask(task: Task) {
+    override fun addTask(title: String) {
+        val task = Task (
+            title = title,
+            id = dataSource.generateId()
+        )
         return dataSource.addTask(task)
     }
 

@@ -26,7 +26,7 @@ interface TaskRepository {
 
     fun getTasks(): List<Task>
 
-    fun addTask(task: Task)
+    fun addTask(title: String)
 
     fun updateTask(task: Task)
 

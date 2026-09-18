@@ -95,7 +95,6 @@ fun HomeScreen(modifier: Modifier = Modifier) {
         onAddTaskClick = {
             val success = addTaskUseCase (
                 title = newTaskTitle,
-                nextId = tasks.size + 1,
             )
             if (success) {
                 newTaskTitle = ""

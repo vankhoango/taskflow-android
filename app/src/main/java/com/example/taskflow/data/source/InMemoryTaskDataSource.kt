@@ -24,6 +24,8 @@ import com.example.taskflow.domain.model.Task
 
 class InMemoryTaskDataSource {
 
+    private var nextId = 4
+
     private val tasks = mutableListOf(
         Task(
             id = 1,
@@ -59,5 +61,9 @@ class InMemoryTaskDataSource {
         if (index != -1) {
             tasks[index] = task
         }
+    }
+
+    fun generateId(): Int {
+        return nextId++
     }
 }
