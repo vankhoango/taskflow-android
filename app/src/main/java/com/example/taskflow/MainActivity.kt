@@ -33,7 +33,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.taskflow.ui.TaskScreen
 import com.example.taskflow.ui.TaskViewModel
 import com.example.taskflow.ui.theme.TaskFlowTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,8 +44,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
 
-            val container = (application as TaskFlowApplication).container
-            val viewModel: TaskViewModel = viewModel(factory = container.taskViewModelFactory)
+            val viewModel: TaskViewModel = viewModel()
 
             TaskFlowTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->

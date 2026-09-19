@@ -23,8 +23,11 @@ package com.example.taskflow.domain.usecase
 import com.example.taskflow.domain.TaskValidator
 import com.example.taskflow.domain.model.Task
 import com.example.taskflow.domain.repository.TaskRepository
+import javax.inject.Inject
 
-class ToggleTaskUseCase (private val repository: TaskRepository) {
+class ToggleTaskUseCase
+    @Inject
+    constructor (private val repository: TaskRepository) {
     operator fun invoke(task: Task): Boolean {
         if (!task.completed && !TaskValidator.canComplete(task)) {
             return false

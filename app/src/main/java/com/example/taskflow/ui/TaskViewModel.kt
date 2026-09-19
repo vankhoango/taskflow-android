@@ -30,8 +30,11 @@ import com.example.taskflow.domain.usecase.ClearCompletedTaskUseCase
 import com.example.taskflow.domain.usecase.DeleteTaskUseCase
 import com.example.taskflow.domain.usecase.GetTasksUseCase
 import com.example.taskflow.domain.usecase.ToggleTaskUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class TaskViewModel(
+@HiltViewModel
+class TaskViewModel @Inject constructor (
     private val getTasksUseCase: GetTasksUseCase,
     private val addTaskUseCase: AddTaskUseCase,
     private val deleteTasksUseCase: DeleteTaskUseCase,

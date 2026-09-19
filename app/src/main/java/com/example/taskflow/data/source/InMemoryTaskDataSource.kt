@@ -21,8 +21,11 @@
 package com.example.taskflow.data.source
 
 import com.example.taskflow.domain.model.Task
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class InMemoryTaskDataSource {
+@Singleton
+class InMemoryTaskDataSource @Inject constructor() {
 
     private var nextId = 4
 

@@ -23,8 +23,13 @@ package com.example.taskflow.data
 import com.example.taskflow.data.source.InMemoryTaskDataSource
 import com.example.taskflow.domain.model.Task
 import com.example.taskflow.domain.repository.TaskRepository
+import javax.inject.Inject
 
-class TaskRepositoryImpl (private val dataSource: InMemoryTaskDataSource) : TaskRepository {
+class TaskRepositoryImpl
+    @Inject
+    constructor(
+        private val dataSource: InMemoryTaskDataSource
+    ) : TaskRepository {
 
     override fun getTasks(): List<Task> {
         return dataSource.getTasks()

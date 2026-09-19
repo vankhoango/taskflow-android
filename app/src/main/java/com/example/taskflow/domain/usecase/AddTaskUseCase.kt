@@ -23,8 +23,11 @@ package com.example.taskflow.domain.usecase
 import com.example.taskflow.domain.TaskValidator
 import com.example.taskflow.domain.model.Task
 import com.example.taskflow.domain.repository.TaskRepository
+import javax.inject.Inject
 
-class AddTaskUseCase(private val repository: TaskRepository) {
+class AddTaskUseCase
+    @Inject
+    constructor (private val repository: TaskRepository) {
     operator fun invoke(title: String): Boolean {
         if (!TaskValidator.isValidTitle(title)) {
             return false

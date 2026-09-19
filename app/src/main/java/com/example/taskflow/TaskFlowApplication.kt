@@ -21,10 +21,8 @@
 package com.example.taskflow
 
 import android.app.Application
-import com.example.taskflow.di.AppContainer
+import dagger.hilt.android.HiltAndroidApp
 
+@HiltAndroidApp
 class TaskFlowApplication(): Application() {
-    val container by lazy {
-        AppContainer()
-    }
 }
