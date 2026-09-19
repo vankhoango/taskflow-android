@@ -31,7 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.taskflow.data.source.InMemoryTaskDataSource
-import com.example.taskflow.domain.repository.TaskRepositoryImpl
+import com.example.taskflow.data.TaskRepositoryImpl
 import com.example.taskflow.domain.usecase.AddTaskUseCase
 import com.example.taskflow.domain.usecase.ClearCompletedTaskUseCase
 import com.example.taskflow.domain.usecase.DeleteTaskUseCase

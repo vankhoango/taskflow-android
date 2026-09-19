@@ -18,10 +18,11 @@
  * limitations under the License.
  */
 
-package com.example.taskflow.domain.repository
+package com.example.taskflow.data
 
 import com.example.taskflow.data.source.InMemoryTaskDataSource
 import com.example.taskflow.domain.model.Task
+import com.example.taskflow.domain.repository.TaskRepository
 
 class TaskRepositoryImpl (private val dataSource: InMemoryTaskDataSource) : TaskRepository {
 
@@ -30,7 +31,7 @@ class TaskRepositoryImpl (private val dataSource: InMemoryTaskDataSource) : Task
     }
 
     override fun addTask(title: String) {
-        val task = Task (
+        val task = Task(
             title = title,
             id = dataSource.generateId()
         )
