@@ -84,19 +84,10 @@ fun HomeScreen(modifier: Modifier = Modifier) {
     TaskScreen(
         taskViewModel.tasks,
 
-        onTaskClick = {
-            taskViewModel.toggleTask(it)
-        },
-
-        onAddTaskClick = {
-            taskViewModel.addTask()
-        },
+        onTaskClick = taskViewModel::toggleTask,
+        onAddTaskClick = taskViewModel::addTask,
         newTaskTitle = taskViewModel.newTaskTitle,
-        onNewTaskTitleChanged = {
-            taskViewModel.onTaskTitleChange(it)
-        },
-        onRemove = {
-            taskViewModel.deleteTask(it)
-        }
+        onNewTaskTitleChanged = taskViewModel::onTaskTitleChange,
+        onRemove = taskViewModel::deleteTask
     )
 }
