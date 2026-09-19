@@ -23,6 +23,7 @@ package com.example.taskflow.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.taskflow.domain.usecase.AddTaskUseCase
+import com.example.taskflow.domain.usecase.ClearCompletedTaskUseCase
 import com.example.taskflow.domain.usecase.DeleteTaskUseCase
 import com.example.taskflow.domain.usecase.GetTasksUseCase
 import com.example.taskflow.domain.usecase.ToggleTaskUseCase
@@ -31,7 +32,8 @@ class TaskViewModelFactory(
     private val getTasksUseCase: GetTasksUseCase,
     private val addTaskUseCase: AddTaskUseCase,
     private val deleteTasksUseCase: DeleteTaskUseCase,
-    private val toggleTaskUseCase: ToggleTaskUseCase
+    private val toggleTaskUseCase: ToggleTaskUseCase,
+    private val clearCompletedTaskUseCase: ClearCompletedTaskUseCase,
 ): ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
@@ -42,6 +44,7 @@ class TaskViewModelFactory(
                 addTaskUseCase = addTaskUseCase,
                 deleteTasksUseCase = deleteTasksUseCase,
                 toggleTaskUseCase = toggleTaskUseCase,
+                clearCompletedTaskUseCase = clearCompletedTaskUseCase,
             ) as T
         }
         throw IllegalArgumentException("Unknown Model Class")

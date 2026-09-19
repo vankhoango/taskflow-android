@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.taskflow.domain.model.Task
 import com.example.taskflow.domain.usecase.AddTaskUseCase
+import com.example.taskflow.domain.usecase.ClearCompletedTaskUseCase
 import com.example.taskflow.domain.usecase.DeleteTaskUseCase
 import com.example.taskflow.domain.usecase.GetTasksUseCase
 import com.example.taskflow.domain.usecase.ToggleTaskUseCase
@@ -34,44 +35,81 @@ class TaskViewModel(
     private val getTasksUseCase: GetTasksUseCase,
     private val addTaskUseCase: AddTaskUseCase,
     private val deleteTasksUseCase: DeleteTaskUseCase,
-    private val toggleTaskUseCase: ToggleTaskUseCase
+    private val toggleTaskUseCase: ToggleTaskUseCase,
+    private val clearCompletedTaskUseCase: ClearCompletedTaskUseCase
 ): ViewModel() {
 
-    var tasks by mutableStateOf<List<Task>>(emptyList())
+    var uiState by mutableStateOf(TaskUiState())
         private set
 
-    var newTaskTitle by mutableStateOf<String>("")
-        private set
-
-    fun onTaskTitleChange(title: String) {
-        newTaskTitle = title
+    private fun onTaskTitleChange(title: String) {
+        uiState = uiState.copy(newTaskTitle = title)
     }
 
-    fun addTask() {
-        val success = addTaskUseCase(newTaskTitle)
+    private fun addTask() {
+        val success = addTaskUseCase(uiState.newTaskTitle)
         if (success) {
-            newTaskTitle = ""
+            uiState = uiState.copy(
+                newTaskTitle = "",
+                errorMessage = null
+            )
             loadTasks()
+        } else {
+            uiState = uiState.copy(
+                errorMessage = "Task title must contain 3-100 characters"
+            )
         }
     }
 
-    fun deleteTask(task: Task) {
+    private fun deleteTask(task: Task) {
         deleteTasksUseCase(task)
         loadTasks()
     }
 
-    fun toggleTask(task: Task) {
+    private fun toggleTask(task: Task) {
         val success = toggleTaskUseCase(task)
         if (success) {
             loadTasks()
         }
     }
 
-    private fun loadTasks() {
-        tasks = getTasksUseCase()
+    init {
+        loadTasks()
     }
 
-    init {
+    private fun loadTasks() {
+        uiState = uiState.copy(
+            isLoading = true
+        )
+        val tasks = getTasksUseCase()
+        uiState = uiState.copy(
+            tasks = tasks,
+            isLoading = false,
+        )
+    }
+
+    fun onEvent(event: TaskUiEvent) {
+        when(event) {
+            TaskUiEvent.AddClicked -> {
+                addTask()
+            }
+            is TaskUiEvent.DeleteClicked -> {
+                deleteTask(event.task)
+            }
+            is TaskUiEvent.TaskClicked -> {
+                toggleTask(event.task)
+            }
+            is TaskUiEvent.TitleChanged -> {
+                onTaskTitleChange(event.newTitle)
+            }
+            TaskUiEvent.ClearCompletedClick -> {
+                clearCompletedTasks()
+            }
+        }
+    }
+
+    private fun clearCompletedTasks() {
+        clearCompletedTaskUseCase()
         loadTasks()
     }
 }

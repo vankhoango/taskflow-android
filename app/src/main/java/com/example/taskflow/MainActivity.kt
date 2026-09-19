@@ -33,6 +33,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.taskflow.data.source.InMemoryTaskDataSource
 import com.example.taskflow.domain.repository.TaskRepositoryImpl
 import com.example.taskflow.domain.usecase.AddTaskUseCase
+import com.example.taskflow.domain.usecase.ClearCompletedTaskUseCase
 import com.example.taskflow.domain.usecase.DeleteTaskUseCase
 import com.example.taskflow.domain.usecase.GetTasksUseCase
 import com.example.taskflow.domain.usecase.ToggleTaskUseCase
@@ -65,12 +66,14 @@ private val addTaskUseCase = AddTaskUseCase(_repository)
 private val getTaskUseCase = GetTasksUseCase(_repository)
 private val deleteTaskUseCase = DeleteTaskUseCase(_repository)
 private val toggleTaskUseCase = ToggleTaskUseCase(_repository)
+private val clearCompletedTaskUseCase = ClearCompletedTaskUseCase(_repository)
 private val taskViewModelFactory by lazy {
     TaskViewModelFactory(
         addTaskUseCase = addTaskUseCase,
         getTasksUseCase = getTaskUseCase,
         deleteTasksUseCase = deleteTaskUseCase,
         toggleTaskUseCase = toggleTaskUseCase,
+        clearCompletedTaskUseCase = clearCompletedTaskUseCase,
     )
 }
 
@@ -82,12 +85,8 @@ fun HomeScreen(modifier: Modifier = Modifier) {
     )
 
     TaskScreen(
-        taskViewModel.tasks,
-
-        onTaskClick = taskViewModel::toggleTask,
-        onAddTaskClick = taskViewModel::addTask,
-        newTaskTitle = taskViewModel.newTaskTitle,
-        onNewTaskTitleChanged = taskViewModel::onTaskTitleChange,
-        onRemove = taskViewModel::deleteTask
+        taskViewModel.uiState,
+        onEvent = taskViewModel::onEvent,
+        modifier = modifier
     )
 }

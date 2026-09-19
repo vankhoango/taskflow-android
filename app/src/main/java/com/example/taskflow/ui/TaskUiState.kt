@@ -18,13 +18,16 @@
  * limitations under the License.
  */
 
-package com.example.taskflow
+package com.example.taskflow.ui
 
 import com.example.taskflow.domain.model.Task
 
 data class TaskUiState (
-    val tasks: List<Task>,
+    val tasks: List<Task> = emptyList(),
+    val newTaskTitle: String = "",
     val isLoading: Boolean = false,
-    val error:String? = null,
+    val errorMessage:String? = null,
 ) {
+    val completedCount: Int
+        get() = tasks.count { it.completed }
 }
