@@ -28,21 +28,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import com.example.taskflow.addTaskUseCase
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.taskflow.data.source.InMemoryTaskDataSource
-import com.example.taskflow.domain.TaskValidator
-import com.example.taskflow.domain.model.Task
 import com.example.taskflow.domain.repository.TaskRepositoryImpl
 import com.example.taskflow.domain.usecase.AddTaskUseCase
-import com.example.taskflow.domain.usecase.DeteleTaskUseCase
+import com.example.taskflow.domain.usecase.DeleteTaskUseCase
 import com.example.taskflow.domain.usecase.GetTasksUseCase
 import com.example.taskflow.domain.usecase.ToggleTaskUseCase
 import com.example.taskflow.ui.TaskScreen
+import com.example.taskflow.ui.TaskViewModel
+import com.example.taskflow.ui.TaskViewModelFactory
 import com.example.taskflow.ui.theme.TaskFlowTheme
 
 class MainActivity : ComponentActivity() {
@@ -67,48 +63,40 @@ private val _dataSource = InMemoryTaskDataSource()
 private val _repository = TaskRepositoryImpl(_dataSource)
 private val addTaskUseCase = AddTaskUseCase(_repository)
 private val getTaskUseCase = GetTasksUseCase(_repository)
-private val deleteTaskUseCase = DeteleTaskUseCase(_repository)
+private val deleteTaskUseCase = DeleteTaskUseCase(_repository)
 private val toggleTaskUseCase = ToggleTaskUseCase(_repository)
+private val taskViewModelFactory by lazy {
+    TaskViewModelFactory(
+        addTaskUseCase = addTaskUseCase,
+        getTasksUseCase = getTaskUseCase,
+        deleteTasksUseCase = deleteTaskUseCase,
+        toggleTaskUseCase = toggleTaskUseCase,
+    )
+}
 
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier) {
 
-    var tasks by remember {
-        mutableStateOf(
-            getTaskUseCase()
-        )
-    }
-
-    var newTaskTitle by remember {
-        mutableStateOf("")
-    }
+    val taskViewModel: TaskViewModel = viewModel(
+        factory = taskViewModelFactory
+    )
 
     TaskScreen(
-        tasks,
+        taskViewModel.tasks,
 
         onTaskClick = {
-            if (toggleTaskUseCase(it)) {
-                tasks = getTaskUseCase()
-            }
+            taskViewModel.toggleTask(it)
         },
 
         onAddTaskClick = {
-            val success = addTaskUseCase (
-                title = newTaskTitle,
-            )
-            if (success) {
-                newTaskTitle = ""
-                tasks = getTaskUseCase()
-            }
+            taskViewModel.addTask()
         },
-
-        newTaskTitle = newTaskTitle,
+        newTaskTitle = taskViewModel.newTaskTitle,
         onNewTaskTitleChanged = {
-            newTaskTitle = it
+            taskViewModel.onTaskTitleChange(it)
         },
         onRemove = {
-            deleteTaskUseCase(it)
-            tasks = getTaskUseCase()
+            taskViewModel.deleteTask(it)
         }
     )
 }

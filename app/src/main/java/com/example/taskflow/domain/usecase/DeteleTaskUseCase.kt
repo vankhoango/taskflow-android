@@ -23,7 +23,7 @@ package com.example.taskflow.domain.usecase
 import com.example.taskflow.domain.model.Task
 import com.example.taskflow.domain.repository.TaskRepository
 
-class DeteleTaskUseCase (private val repository: TaskRepository) {
+class DeleteTaskUseCase (private val repository: TaskRepository) {
     operator fun invoke(task: Task) {
         repository.deleteTask(task)
     }
