@@ -30,16 +30,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.taskflow.data.source.InMemoryTaskDataSource
-import com.example.taskflow.data.TaskRepositoryImpl
-import com.example.taskflow.domain.usecase.AddTaskUseCase
-import com.example.taskflow.domain.usecase.ClearCompletedTaskUseCase
-import com.example.taskflow.domain.usecase.DeleteTaskUseCase
-import com.example.taskflow.domain.usecase.GetTasksUseCase
-import com.example.taskflow.domain.usecase.ToggleTaskUseCase
 import com.example.taskflow.ui.TaskScreen
 import com.example.taskflow.ui.TaskViewModel
-import com.example.taskflow.ui.TaskViewModelFactory
 import com.example.taskflow.ui.theme.TaskFlowTheme
 
 class MainActivity : ComponentActivity() {
@@ -49,9 +41,14 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
+
+            val container = (application as TaskFlowApplication).container
+            val viewModel: TaskViewModel = viewModel(factory = container.taskViewModelFactory)
+
             TaskFlowTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     HomeScreen(
+                        viewModel,
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -60,33 +57,14 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-private val _dataSource = InMemoryTaskDataSource()
-private val _repository = TaskRepositoryImpl(_dataSource)
-private val addTaskUseCase = AddTaskUseCase(_repository)
-private val getTaskUseCase = GetTasksUseCase(_repository)
-private val deleteTaskUseCase = DeleteTaskUseCase(_repository)
-private val toggleTaskUseCase = ToggleTaskUseCase(_repository)
-private val clearCompletedTaskUseCase = ClearCompletedTaskUseCase(_repository)
-private val taskViewModelFactory by lazy {
-    TaskViewModelFactory(
-        addTaskUseCase = addTaskUseCase,
-        getTasksUseCase = getTaskUseCase,
-        deleteTasksUseCase = deleteTaskUseCase,
-        toggleTaskUseCase = toggleTaskUseCase,
-        clearCompletedTaskUseCase = clearCompletedTaskUseCase,
-    )
-}
-
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier) {
-
-    val taskViewModel: TaskViewModel = viewModel(
-        factory = taskViewModelFactory
-    )
-
+fun HomeScreen(
+    viewModel: TaskViewModel,
+    modifier: Modifier = Modifier
+) {
     TaskScreen(
-        taskViewModel.uiState,
-        onEvent = taskViewModel::onEvent,
+        viewModel.uiState,
+        onEvent = viewModel::onEvent,
         modifier = modifier
     )
 }
