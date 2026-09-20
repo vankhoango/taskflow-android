@@ -30,8 +30,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.taskflow.ui.TaskScreen
-import com.example.taskflow.ui.TaskViewModel
+import com.example.taskflow.tasks.ui.TaskScreen
+import com.example.taskflow.tasks.ui.TaskViewModel
 import com.example.taskflow.ui.theme.TaskFlowTheme
 import dagger.hilt.android.AndroidEntryPoint
 

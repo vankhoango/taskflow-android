@@ -44,4 +44,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "TaskFlow"
 include(":app")
- 
+include(":tasks")
