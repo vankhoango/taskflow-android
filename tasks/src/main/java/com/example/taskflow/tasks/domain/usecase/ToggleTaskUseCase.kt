@@ -25,7 +25,7 @@ import com.example.taskflow.tasks.domain.model.Task
 import com.example.taskflow.tasks.domain.repository.TaskRepository
 import javax.inject.Inject
 
-class ToggleTaskUseCase
+internal class ToggleTaskUseCase
     @Inject
     constructor (private val repository: TaskRepository) {
     operator fun invoke(task: Task): Boolean {

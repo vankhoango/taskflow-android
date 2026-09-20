@@ -25,7 +25,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class InMemoryTaskDataSource @Inject constructor() {
+internal class InMemoryTaskDataSource @Inject constructor() {
 
     private var nextId = 4
 

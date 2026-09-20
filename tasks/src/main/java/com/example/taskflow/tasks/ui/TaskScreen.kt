@@ -46,7 +46,7 @@ import androidx.compose.ui.unit.dp
 import com.example.taskflow.tasks.domain.model.Task
 
 @Composable
-fun TaskScreen(
+internal fun TaskScreen(
     state: TaskUiState,
     onEvent: (TaskUiEvent) -> Unit,
     modifier: Modifier = Modifier
@@ -132,7 +132,7 @@ private fun TaskListView(
 }
 
 @Composable
-fun TaskItem (task: Task, onClick:() -> Unit, onRemove: (Task) -> Unit) {
+internal fun TaskItem (task: Task, onClick:() -> Unit, onRemove: (Task) -> Unit) {
 
     Row(
         modifier = Modifier.fillMaxWidth().clickable(true, onClick=onClick),

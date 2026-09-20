@@ -22,7 +22,7 @@ package com.example.taskflow.tasks.ui
 
 import com.example.taskflow.tasks.domain.model.Task
 
-sealed interface TaskUiEvent {
+internal sealed interface TaskUiEvent {
     data class TitleChanged(val newTitle: String): TaskUiEvent
     data object AddClicked: TaskUiEvent
     data class TaskClicked(val task: Task): TaskUiEvent

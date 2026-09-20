@@ -25,7 +25,7 @@ import com.example.taskflow.tasks.domain.model.Task
 import com.example.taskflow.tasks.domain.repository.TaskRepository
 import javax.inject.Inject
 
-class TaskRepositoryImpl
+internal class TaskRepositoryImpl
     @Inject
     constructor(
         private val dataSource: InMemoryTaskDataSource

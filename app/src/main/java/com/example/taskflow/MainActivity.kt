@@ -27,11 +27,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.taskflow.tasks.ui.TaskScreen
-import com.example.taskflow.tasks.ui.TaskViewModel
+import com.example.taskflow.tasks.ui.TaskRoute
 import com.example.taskflow.ui.theme.TaskFlowTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -44,28 +41,11 @@ class MainActivity : ComponentActivity() {
 
         setContent {
 
-            val viewModel: TaskViewModel = viewModel()
-
             TaskFlowTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    HomeScreen(
-                        viewModel,
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    TaskRoute(modifier = Modifier.padding(innerPadding))
                 }
             }
         }
     }
-}
-
-@Composable
-fun HomeScreen(
-    viewModel: TaskViewModel,
-    modifier: Modifier = Modifier
-) {
-    TaskScreen(
-        viewModel.uiState,
-        onEvent = viewModel::onEvent,
-        modifier = modifier
-    )
 }

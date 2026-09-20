@@ -22,7 +22,7 @@ package com.example.taskflow.tasks.domain
 
 import com.example.taskflow.tasks.domain.model.Task
 
-object TaskValidator {
+internal object TaskValidator {
     fun isValidTitle(title: String): Boolean {
         return title.trim().length in 3..100
     }

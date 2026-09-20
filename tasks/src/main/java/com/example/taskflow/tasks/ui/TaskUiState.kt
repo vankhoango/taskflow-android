@@ -22,7 +22,7 @@ package com.example.taskflow.tasks.ui
 
 import com.example.taskflow.tasks.domain.model.Task
 
-data class TaskUiState (
+internal data class TaskUiState (
     val tasks: List<Task> = emptyList(),
     val newTaskTitle: String = "",
     val isLoading: Boolean = false,

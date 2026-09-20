@@ -24,7 +24,7 @@ import com.example.taskflow.tasks.domain.TaskValidator
 import com.example.taskflow.tasks.domain.repository.TaskRepository
 import javax.inject.Inject
 
-class AddTaskUseCase
+internal class AddTaskUseCase
     @Inject
     constructor (private val repository: TaskRepository) {
     operator fun invoke(title: String): Boolean {

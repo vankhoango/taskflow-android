@@ -22,7 +22,7 @@ package com.example.taskflow.tasks.domain.repository
 
 import com.example.taskflow.tasks.domain.model.Task
 
-interface TaskRepository {
+internal interface TaskRepository {
 
     fun getTasks(): List<Task>
 

@@ -23,7 +23,7 @@ package com.example.taskflow.tasks.domain.usecase
 import com.example.taskflow.tasks.domain.repository.TaskRepository
 import javax.inject.Inject
 
-class ClearCompletedTaskUseCase
+internal class ClearCompletedTaskUseCase
     @Inject
     constructor (private val repository: TaskRepository) {
     operator fun invoke() {

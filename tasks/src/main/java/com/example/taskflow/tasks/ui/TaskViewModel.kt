@@ -34,7 +34,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class TaskViewModel @Inject constructor (
+internal class TaskViewModel @Inject constructor (
     private val getTasksUseCase: GetTasksUseCase,
     private val addTaskUseCase: AddTaskUseCase,
     private val deleteTasksUseCase: DeleteTaskUseCase,

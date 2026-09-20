@@ -31,7 +31,7 @@ import dagger.hilt.components.SingletonComponent
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
     @Binds
-    abstract fun bindTaskRepository(
+    internal abstract fun bindTaskRepository(
         implementation: TaskRepositoryImpl
     ): TaskRepository
 }

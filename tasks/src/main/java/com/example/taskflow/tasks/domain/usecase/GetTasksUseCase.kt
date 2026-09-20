@@ -24,7 +24,7 @@ import com.example.taskflow.tasks.domain.model.Task
 import com.example.taskflow.tasks.domain.repository.TaskRepository
 import javax.inject.Inject
 
-class GetTasksUseCase
+internal class GetTasksUseCase
     @Inject
     constructor (private val repository: TaskRepository) {
     operator fun invoke(): List<Task> {

@@ -20,7 +20,7 @@
 
 package com.example.taskflow.tasks.domain.model
 
-data class Task (
+internal data class Task (
     val id: Int,
     val title: String,
     val completed: Boolean = false) {
