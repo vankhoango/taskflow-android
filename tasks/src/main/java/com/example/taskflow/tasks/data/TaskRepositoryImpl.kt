@@ -20,29 +20,34 @@
 
 package com.example.taskflow.tasks.data
 
+import com.example.taskflow.tasks.data.local.LocalTaskDataSource
 import com.example.taskflow.tasks.data.remote.RemoteTaskDataSource
 import com.example.taskflow.tasks.data.source.InMemoryTaskDataSource
 import com.example.taskflow.tasks.domain.model.Task
 import com.example.taskflow.tasks.domain.repository.TaskRepository
 import javax.inject.Inject
 import com.example.taskflow.tasks.data.mapper.toDomain
+import com.example.taskflow.tasks.data.mapper.toEntity
 
 internal class TaskRepositoryImpl
     @Inject
     constructor(
         private val remoteDataSource: RemoteTaskDataSource,
-        private val inMemoryDataSource: InMemoryTaskDataSource
+        private val localDataSource: LocalTaskDataSource
     ) : TaskRepository {
 
     override suspend fun getTasks(): List<Task> {
-        return remoteDataSource
-            .getTasks()
-            .map {
-                it.toDomain()
-            }
+        val remoteTasks = remoteDataSource.getTasks()
+        val entities = remoteTasks.map {
+            it.toEntity()
+        }
+        localDataSource.replaceTasks(entities)
+        return localDataSource.getTasks().map {
+            it.toDomain()
+        }
     }
 
-    override fun addTask(title: String) {
+    override suspend fun addTask(title: String) {
         /*
         val task = Task(
             title = title,
@@ -52,11 +57,11 @@ internal class TaskRepositoryImpl
          */
     }
 
-    override fun updateTask(task: Task) {
+    override suspend fun updateTask(task: Task) {
         //return dataSource.updateTask(task)
     }
 
-    override fun deleteTask(task: Task) {
+    override suspend fun deleteTask(task: Task) {
         //return dataSource.removeTask(task)
     }
 }

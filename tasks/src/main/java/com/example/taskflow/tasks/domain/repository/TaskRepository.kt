@@ -26,9 +26,9 @@ internal interface TaskRepository {
 
     suspend fun getTasks(): List<Task>
 
-    fun addTask(title: String)
+    suspend fun addTask(title: String)
 
-    fun updateTask(task: Task)
+    suspend fun updateTask(task: Task)
 
-    fun deleteTask(task: Task)
+    suspend fun deleteTask(task: Task)
 }

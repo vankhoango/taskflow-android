@@ -39,3 +39,11 @@ internal fun TaskEntity.toDomain(): Task {
         completed = this.completed
     )
 }
+
+internal fun TaskDto.toEntity(): TaskEntity {
+    return TaskEntity(
+        id = id,
+        title = title,
+        completed = completed
+    )
+}

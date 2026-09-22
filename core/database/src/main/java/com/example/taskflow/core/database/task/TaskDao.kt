@@ -25,13 +25,14 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 
 @Dao
 interface TaskDao {
 
     @Query("SELECT * FROM tasks")
-    suspend fun getAllTasks(): List<TaskEntity>
+    suspend fun getTasks(): List<TaskEntity>
 
     @Query("SELECT * FROM tasks WHERE id = :id")
     suspend fun getTask(id: Long): TaskEntity
@@ -48,4 +49,12 @@ interface TaskDao {
     @Delete
     suspend fun deleteTask(task: TaskEntity)
 
+    @Query("DELETE FROM tasks")
+    suspend fun deleteAllTasks()
+
+    @Transaction
+    suspend fun replaceTasks(tasks: List<TaskEntity>) {
+        deleteAllTasks()
+        insertTasks(tasks)
+    }
 }

@@ -27,7 +27,7 @@ import javax.inject.Inject
 internal class AddTaskUseCase
     @Inject
     constructor (private val repository: TaskRepository) {
-    operator fun invoke(title: String): Boolean {
+    operator suspend fun invoke(title: String): Boolean {
         if (!TaskValidator.isValidTitle(title)) {
             return false
         }

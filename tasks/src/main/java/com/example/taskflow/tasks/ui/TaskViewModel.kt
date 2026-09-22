@@ -53,47 +53,53 @@ internal class TaskViewModel @Inject constructor (
         uiState = uiState.copy(newTaskTitle = title)
     }
 
+    private suspend fun loadTasks() {
+        uiState = uiState.copy(
+            isLoading = true
+        )
+        val tasks = getTasksUseCase()
+        uiState = uiState.copy(
+            tasks = tasks,
+            isLoading = false,
+        )
+    }
+
     private fun addTask() {
-        val success = addTaskUseCase(uiState.newTaskTitle)
-        if (success) {
-            uiState = uiState.copy(
-                newTaskTitle = "",
-                errorMessage = null
-            )
-            loadTasks()
-        } else {
-            uiState = uiState.copy(
-                errorMessage = "Task title must contain 3-100 characters"
-            )
+        viewModelScope.launch {
+            val success = addTaskUseCase(uiState.newTaskTitle)
+            if (success) {
+                uiState = uiState.copy(
+                    newTaskTitle = "",
+                    errorMessage = null
+                )
+                loadTasks()
+            } else {
+                uiState = uiState.copy(
+                    errorMessage = "Task title must contain 3-100 characters"
+                )
+            }
         }
     }
 
     private fun deleteTask(task: Task) {
-        deleteTasksUseCase(task)
-        loadTasks()
-    }
-
-    private fun toggleTask(task: Task) {
-        val success = toggleTaskUseCase(task)
-        if (success) {
+        viewModelScope.launch {
+            deleteTasksUseCase(task)
             loadTasks()
         }
     }
 
-    init {
-        loadTasks()
+    private fun toggleTask(task: Task) {
+        viewModelScope.launch {
+            val success = toggleTaskUseCase(task)
+            if (success) {
+                loadTasks()
+            }
+        }
     }
 
-    private fun loadTasks() {
+    init {
         viewModelScope.launch {
-            uiState = uiState.copy(
-                isLoading = true
-            )
-            val tasks = getTasksUseCase()
-            uiState = uiState.copy(
-                tasks = tasks,
-                isLoading = false,
-            )
+            loadTasks()
         }
     }
 

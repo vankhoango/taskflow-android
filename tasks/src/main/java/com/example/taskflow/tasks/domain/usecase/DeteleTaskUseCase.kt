@@ -27,7 +27,7 @@ import javax.inject.Inject
 internal class DeleteTaskUseCase
     @Inject
     constructor(private val repository: TaskRepository) {
-    operator fun invoke(task: Task) {
+    operator suspend fun invoke(task: Task) {
         repository.deleteTask(task)
     }
 }

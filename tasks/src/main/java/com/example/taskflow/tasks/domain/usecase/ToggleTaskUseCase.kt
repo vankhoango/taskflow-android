@@ -28,7 +28,7 @@ import javax.inject.Inject
 internal class ToggleTaskUseCase
     @Inject
     constructor (private val repository: TaskRepository) {
-    operator fun invoke(task: Task): Boolean {
+    operator suspend fun invoke(task: Task): Boolean {
         if (!task.completed && !TaskValidator.canComplete(task)) {
             return false
         }
