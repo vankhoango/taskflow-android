@@ -30,11 +30,12 @@ import com.example.taskflow.tasks.data.mapper.toDomain
 internal class TaskRepositoryImpl
     @Inject
     constructor(
-        private val dataSource: RemoteTaskDataSource
+        private val remoteDataSource: RemoteTaskDataSource,
+        private val inMemoryDataSource: InMemoryTaskDataSource
     ) : TaskRepository {
 
     override suspend fun getTasks(): List<Task> {
-        return dataSource
+        return remoteDataSource
             .getTasks()
             .map {
                 it.toDomain()

@@ -29,6 +29,9 @@ dependencies {
 
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.room.runtime)
     implementation(libs.material)
 
     // Compose
@@ -48,6 +51,7 @@ dependencies {
 
     // Network
     implementation( project(":core:network") )
+    implementation( project (":core:database") )
     implementation(libs.retrofit)
 
     // Tests

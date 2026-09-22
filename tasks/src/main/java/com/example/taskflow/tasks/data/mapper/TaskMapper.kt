@@ -20,6 +20,7 @@
 
 package com.example.taskflow.tasks.data.mapper
 
+import com.example.taskflow.core.database.task.TaskEntity
 import com.example.taskflow.tasks.data.remote.TaskDto
 import com.example.taskflow.tasks.domain.model.Task
 
@@ -28,5 +29,13 @@ internal fun TaskDto.toDomain(): Task {
         id = this.id.toInt(),
         title = this.title,
         completed = this.completed,
+    )
+}
+
+internal fun TaskEntity.toDomain(): Task {
+    return Task (
+        id = this.id.toInt(),
+        title = this.title,
+        completed = this.completed
     )
 }
