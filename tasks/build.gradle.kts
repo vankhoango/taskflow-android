@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.devtools.ksp)
     alias(libs.plugins.dagger.hilt)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -44,6 +45,10 @@ dependencies {
     // Hilt
     implementation(libs.dagger.hilt)
     ksp(libs.dagger.hilt.compiler)
+
+    // Network
+    implementation( project(":core:network") )
+    implementation(libs.retrofit)
 
     // Tests
     testImplementation(libs.junit)

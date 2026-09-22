@@ -26,7 +26,7 @@ import javax.inject.Inject
 internal class ClearCompletedTaskUseCase
     @Inject
     constructor (private val repository: TaskRepository) {
-    operator fun invoke() {
+    operator suspend fun invoke() {
         repository
             .getTasks()
             .filter { it.completed }

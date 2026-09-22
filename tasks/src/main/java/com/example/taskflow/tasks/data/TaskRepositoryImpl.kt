@@ -20,34 +20,42 @@
 
 package com.example.taskflow.tasks.data
 
+import com.example.taskflow.tasks.data.remote.RemoteTaskDataSource
 import com.example.taskflow.tasks.data.source.InMemoryTaskDataSource
 import com.example.taskflow.tasks.domain.model.Task
 import com.example.taskflow.tasks.domain.repository.TaskRepository
 import javax.inject.Inject
+import com.example.taskflow.tasks.data.mapper.toDomain
 
 internal class TaskRepositoryImpl
     @Inject
     constructor(
-        private val dataSource: InMemoryTaskDataSource
+        private val dataSource: RemoteTaskDataSource
     ) : TaskRepository {
 
-    override fun getTasks(): List<Task> {
-        return dataSource.getTasks()
+    override suspend fun getTasks(): List<Task> {
+        return dataSource
+            .getTasks()
+            .map {
+                it.toDomain()
+            }
     }
 
     override fun addTask(title: String) {
+        /*
         val task = Task(
             title = title,
             id = dataSource.generateId()
         )
         return dataSource.addTask(task)
+         */
     }
 
     override fun updateTask(task: Task) {
-        return dataSource.updateTask(task)
+        //return dataSource.updateTask(task)
     }
 
     override fun deleteTask(task: Task) {
-        return dataSource.removeTask(task)
+        //return dataSource.removeTask(task)
     }
 }

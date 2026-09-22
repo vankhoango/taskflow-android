@@ -18,20 +18,15 @@
  * limitations under the License.
  */
 
-package com.example.taskflow.tasks.di
+package com.example.taskflow.tasks.data.mapper
 
-import com.example.taskflow.tasks.data.TaskRepositoryImpl
-import com.example.taskflow.tasks.domain.repository.TaskRepository
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
+import com.example.taskflow.tasks.data.remote.TaskDto
+import com.example.taskflow.tasks.domain.model.Task
 
-@Module
-@InstallIn(SingletonComponent::class)
-abstract class RepositoryModule {
-    @Binds
-    internal abstract fun bindTaskRepository(
-        implementation: TaskRepositoryImpl
-    ): TaskRepository
+internal fun TaskDto.toDomain(): Task {
+    return Task(
+        id = this.id.toInt(),
+        title = this.title,
+        completed = this.completed,
+    )
 }

@@ -26,4 +26,5 @@ plugins {
     alias(libs.plugins.devtools.ksp) apply false
     alias(libs.plugins.dagger.hilt) apply false
     alias(libs.plugins.android.library) apply false
+    alias(libs.plugins.kotlin.serialization) apply false
 }

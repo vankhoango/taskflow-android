@@ -24,7 +24,7 @@ import com.example.taskflow.tasks.domain.model.Task
 
 internal interface TaskRepository {
 
-    fun getTasks(): List<Task>
+    suspend fun getTasks(): List<Task>
 
     fun addTask(title: String)
 

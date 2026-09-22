@@ -20,10 +20,14 @@
 
 package com.example.taskflow.tasks.ui
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.taskflow.core.network.NetworkFactory
+import com.example.taskflow.tasks.data.remote.TaskApi
 import com.example.taskflow.tasks.domain.model.Task
 import com.example.taskflow.tasks.domain.usecase.AddTaskUseCase
 import com.example.taskflow.tasks.domain.usecase.ClearCompletedTaskUseCase
@@ -31,6 +35,7 @@ import com.example.taskflow.tasks.domain.usecase.DeleteTaskUseCase
 import com.example.taskflow.tasks.domain.usecase.GetTasksUseCase
 import com.example.taskflow.tasks.domain.usecase.ToggleTaskUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -81,14 +86,16 @@ internal class TaskViewModel @Inject constructor (
     }
 
     private fun loadTasks() {
-        uiState = uiState.copy(
-            isLoading = true
-        )
-        val tasks = getTasksUseCase()
-        uiState = uiState.copy(
-            tasks = tasks,
-            isLoading = false,
-        )
+        viewModelScope.launch {
+            uiState = uiState.copy(
+                isLoading = true
+            )
+            val tasks = getTasksUseCase()
+            uiState = uiState.copy(
+                tasks = tasks,
+                isLoading = false,
+            )
+        }
     }
 
     fun onEvent(event: TaskUiEvent) {
@@ -112,7 +119,9 @@ internal class TaskViewModel @Inject constructor (
     }
 
     private fun clearCompletedTasks() {
-        clearCompletedTaskUseCase()
-        loadTasks()
+        viewModelScope.launch {
+            clearCompletedTaskUseCase()
+            loadTasks()
+        }
     }
 }

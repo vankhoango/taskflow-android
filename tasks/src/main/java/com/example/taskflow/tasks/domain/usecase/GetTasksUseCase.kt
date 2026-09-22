@@ -27,7 +27,7 @@ import javax.inject.Inject
 internal class GetTasksUseCase
     @Inject
     constructor (private val repository: TaskRepository) {
-    operator fun invoke(): List<Task> {
+    operator suspend fun invoke(): List<Task> {
         return repository.getTasks()
     }
 }
