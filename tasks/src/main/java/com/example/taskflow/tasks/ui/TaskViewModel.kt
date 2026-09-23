@@ -20,18 +20,17 @@
 
 package com.example.taskflow.tasks.ui
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.taskflow.tasks.data.remote.TaskApi
 import com.example.taskflow.tasks.domain.model.Task
 import com.example.taskflow.tasks.domain.usecase.AddTaskUseCase
 import com.example.taskflow.tasks.domain.usecase.ClearCompletedTaskUseCase
 import com.example.taskflow.tasks.domain.usecase.DeleteTaskUseCase
-import com.example.taskflow.tasks.domain.usecase.GetTasksUseCase
+import com.example.taskflow.tasks.domain.usecase.ObserveTasksUseCase
+import com.example.taskflow.tasks.domain.usecase.RefreshTasksUseCase
 import com.example.taskflow.tasks.domain.usecase.ToggleTaskUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -39,11 +38,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 internal class TaskViewModel @Inject constructor (
-    private val getTasksUseCase: GetTasksUseCase,
+    private val observeTasksUseCase: ObserveTasksUseCase,
     private val addTaskUseCase: AddTaskUseCase,
     private val deleteTasksUseCase: DeleteTaskUseCase,
     private val toggleTaskUseCase: ToggleTaskUseCase,
-    private val clearCompletedTaskUseCase: ClearCompletedTaskUseCase
+    private val clearCompletedTaskUseCase: ClearCompletedTaskUseCase,
+    private val refreshTasksUseCase: RefreshTasksUseCase,
 ): ViewModel() {
 
     var uiState by mutableStateOf(TaskUiState())
@@ -53,15 +53,27 @@ internal class TaskViewModel @Inject constructor (
         uiState = uiState.copy(newTaskTitle = title)
     }
 
-    private suspend fun loadTasks() {
-        uiState = uiState.copy(
-            isLoading = true
-        )
-        val tasks = getTasksUseCase()
-        uiState = uiState.copy(
-            tasks = tasks,
-            isLoading = false,
-        )
+    private fun observeTasks() {
+        viewModelScope.launch {
+            observeTasksUseCase().collect { tasks ->
+                uiState = uiState.copy(
+                    tasks = tasks,
+                    isLoading = false,
+                )
+            }
+        }
+    }
+
+    init {
+        observeTasks()
+
+        viewModelScope.launch {
+            try {
+                refreshTasksUseCase()
+            } catch (e: Exception) {
+                // Cached tasks remain visible.
+            }
+        }
     }
 
     private fun addTask() {
@@ -72,7 +84,7 @@ internal class TaskViewModel @Inject constructor (
                     newTaskTitle = "",
                     errorMessage = null
                 )
-                loadTasks()
+                refreshTasks()
             } else {
                 uiState = uiState.copy(
                     errorMessage = "Task title must contain 3-100 characters"
@@ -84,7 +96,7 @@ internal class TaskViewModel @Inject constructor (
     private fun deleteTask(task: Task) {
         viewModelScope.launch {
             deleteTasksUseCase(task)
-            loadTasks()
+            refreshTasks()
         }
     }
 
@@ -92,14 +104,8 @@ internal class TaskViewModel @Inject constructor (
         viewModelScope.launch {
             val success = toggleTaskUseCase(task)
             if (success) {
-                loadTasks()
+                refreshTasks()
             }
-        }
-    }
-
-    init {
-        viewModelScope.launch {
-            loadTasks()
         }
     }
 
@@ -126,7 +132,11 @@ internal class TaskViewModel @Inject constructor (
     private fun clearCompletedTasks() {
         viewModelScope.launch {
             clearCompletedTaskUseCase()
-            loadTasks()
+            refreshTasks()
         }
+    }
+
+    private suspend fun refreshTasks() {
+        refreshTasksUseCase()
     }
 }

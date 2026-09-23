@@ -21,10 +21,13 @@
 package com.example.taskflow.tasks.domain.repository
 
 import com.example.taskflow.tasks.domain.model.Task
+import kotlinx.coroutines.flow.Flow
 
 internal interface TaskRepository {
 
-    suspend fun getTasks(): List<Task>
+    fun observeTasks(): Flow<List<Task>>
+
+    suspend fun refreshTasks()
 
     suspend fun addTask(title: String)
 

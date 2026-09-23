@@ -27,12 +27,13 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TaskDao {
 
     @Query("SELECT * FROM tasks")
-    suspend fun getTasks(): List<TaskEntity>
+    fun observeTasks(): Flow<List<TaskEntity>>
 
     @Query("SELECT * FROM tasks WHERE id = :id")
     suspend fun getTask(id: Long): TaskEntity
@@ -57,4 +58,5 @@ interface TaskDao {
         deleteAllTasks()
         insertTasks(tasks)
     }
+
 }

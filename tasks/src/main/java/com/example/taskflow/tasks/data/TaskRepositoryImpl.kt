@@ -28,6 +28,8 @@ import com.example.taskflow.tasks.domain.repository.TaskRepository
 import javax.inject.Inject
 import com.example.taskflow.tasks.data.mapper.toDomain
 import com.example.taskflow.tasks.data.mapper.toEntity
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 internal class TaskRepositoryImpl
     @Inject
@@ -36,15 +38,20 @@ internal class TaskRepositoryImpl
         private val localDataSource: LocalTaskDataSource
     ) : TaskRepository {
 
-    override suspend fun getTasks(): List<Task> {
-        val remoteTasks = remoteDataSource.getTasks()
-        val entities = remoteTasks.map {
+    override fun observeTasks(): Flow<List<Task>> {
+        return localDataSource.observeTasks()
+            .map { entities ->
+                entities.map {
+                    it.toDomain()
+                }
+            }
+    }
+
+    override suspend fun refreshTasks() {
+        val tasks = remoteDataSource.getTasks()
+        localDataSource.replaceTasks(tasks.map {
             it.toEntity()
-        }
-        localDataSource.replaceTasks(entities)
-        return localDataSource.getTasks().map {
-            it.toDomain()
-        }
+        })
     }
 
     override suspend fun addTask(title: String) {

@@ -22,13 +22,14 @@ package com.example.taskflow.tasks.data.local
 
 import com.example.taskflow.core.database.task.TaskDao
 import com.example.taskflow.core.database.task.TaskEntity
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 internal class LocalTaskDataSource
     @Inject constructor(private val taskDao: TaskDao) {
 
-    suspend fun getTasks(): List<TaskEntity> {
-        return taskDao.getTasks()
+    fun observeTasks(): Flow<List<TaskEntity>> {
+        return taskDao.observeTasks()
     }
 
     suspend fun getTask(id: Long): TaskEntity? {

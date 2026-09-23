@@ -27,9 +27,7 @@ internal class ClearCompletedTaskUseCase
     @Inject
     constructor (private val repository: TaskRepository) {
     operator suspend fun invoke() {
-        repository
-            .getTasks()
-            .filter { it.completed }
-            .forEach { repository.deleteTask(it) }
+        //repository.deleteTask()
+        throw NotImplementedError()
     }
 }

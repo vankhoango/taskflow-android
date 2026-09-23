@@ -44,6 +44,7 @@ internal fun TaskDto.toEntity(): TaskEntity {
     return TaskEntity(
         id = id,
         title = title,
-        completed = completed
+        completed = completed,
+        projectId = 1
     )
 }

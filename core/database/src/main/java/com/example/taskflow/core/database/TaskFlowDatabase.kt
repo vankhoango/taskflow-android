@@ -22,14 +22,16 @@ package com.example.taskflow.core.database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import com.example.taskflow.core.database.project.ProjectEntity
 import com.example.taskflow.core.database.task.TaskDao
 import com.example.taskflow.core.database.task.TaskEntity
 
 @Database(
     entities = [
-        TaskEntity::class
+        TaskEntity::class,
+        ProjectEntity::class,
     ],
-    version = 1
+    version = 2
 )
 abstract class TaskFlowDatabase: RoomDatabase() {
     abstract fun getTaskDao(): TaskDao

@@ -22,12 +22,13 @@ package com.example.taskflow.tasks.domain.usecase
 
 import com.example.taskflow.tasks.domain.model.Task
 import com.example.taskflow.tasks.domain.repository.TaskRepository
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-internal class GetTasksUseCase
+internal class ObserveTasksUseCase
     @Inject
     constructor (private val repository: TaskRepository) {
-    operator suspend fun invoke(): List<Task> {
-        return repository.getTasks()
+    operator fun invoke(): Flow<List<Task>> {
+        return repository.observeTasks()
     }
 }

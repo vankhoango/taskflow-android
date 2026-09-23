@@ -21,12 +21,29 @@
 package com.example.taskflow.core.database.task
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.example.taskflow.core.database.project.ProjectEntity
 
-@Entity(tableName = "tasks")
+@Entity(
+    tableName = "tasks",
+    foreignKeys = [
+        ForeignKey(
+            entity = ProjectEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["projectId"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ],
+    indices = [
+        Index("projectId")
+    ]
+)
 data class TaskEntity (
     @PrimaryKey
     val id: Long,
+    val projectId: Long,
     val title: String,
     val completed: Boolean
 ) {
