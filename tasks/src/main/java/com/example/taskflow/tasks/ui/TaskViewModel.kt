@@ -82,12 +82,11 @@ internal class TaskViewModel @Inject constructor (
             if (success) {
                 uiState = uiState.copy(
                     newTaskTitle = "",
-                    errorMessage = null
+                    errorMessage = null,
                 )
-                refreshTasks()
             } else {
                 uiState = uiState.copy(
-                    errorMessage = "Task title must contain 3-100 characters"
+                    errorMessage = "Task title must contain 3-100 characters",
                 )
             }
         }
@@ -96,16 +95,12 @@ internal class TaskViewModel @Inject constructor (
     private fun deleteTask(task: Task) {
         viewModelScope.launch {
             deleteTasksUseCase(task)
-            refreshTasks()
         }
     }
 
     private fun toggleTask(task: Task) {
         viewModelScope.launch {
             val success = toggleTaskUseCase(task)
-            if (success) {
-                refreshTasks()
-            }
         }
     }
 
@@ -132,11 +127,7 @@ internal class TaskViewModel @Inject constructor (
     private fun clearCompletedTasks() {
         viewModelScope.launch {
             clearCompletedTaskUseCase()
-            refreshTasks()
         }
     }
 
-    private suspend fun refreshTasks() {
-        refreshTasksUseCase()
-    }
 }
