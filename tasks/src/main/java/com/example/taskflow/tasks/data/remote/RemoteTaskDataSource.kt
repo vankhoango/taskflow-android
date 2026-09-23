@@ -25,7 +25,9 @@ import javax.inject.Inject
 internal class RemoteTaskDataSource @Inject constructor (
     private val remoteApi: TaskApi
 ) {
-    suspend fun getTasks(): List<TaskDto> {
-        return remoteApi.getTasks()
+    suspend fun getTasks(projectId: Long): List<TaskDto> {
+        return remoteApi.getTasks(projectId)
     }
+
+    
 }

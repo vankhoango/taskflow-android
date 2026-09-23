@@ -22,6 +22,7 @@ package com.example.taskflow.core.database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import com.example.taskflow.core.database.project.ProjectDao
 import com.example.taskflow.core.database.project.ProjectEntity
 import com.example.taskflow.core.database.task.TaskDao
 import com.example.taskflow.core.database.task.TaskEntity
@@ -35,4 +36,5 @@ import com.example.taskflow.core.database.task.TaskEntity
 )
 abstract class TaskFlowDatabase: RoomDatabase() {
     abstract fun getTaskDao(): TaskDao
+    abstract fun getProjectDao(): ProjectDao
 }

@@ -21,8 +21,9 @@
 package com.example.taskflow.tasks.data.remote
 
 import retrofit2.http.GET
+import retrofit2.http.Path
 
 interface TaskApi {
-    @GET("todos")
-    suspend fun getTasks(): List<TaskDto>
+    @GET("projects/{projectId}/tasks")
+    suspend fun getTasks(@Path("projectId") projectId: Long): List<TaskDto>
 }

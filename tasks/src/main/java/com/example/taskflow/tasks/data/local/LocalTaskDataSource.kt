@@ -20,13 +20,18 @@
 
 package com.example.taskflow.tasks.data.local
 
+import com.example.taskflow.core.database.project.ProjectDao
+import com.example.taskflow.core.database.project.ProjectEntity
 import com.example.taskflow.core.database.task.TaskDao
 import com.example.taskflow.core.database.task.TaskEntity
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 internal class LocalTaskDataSource
-    @Inject constructor(private val taskDao: TaskDao) {
+    @Inject constructor(
+        private val taskDao: TaskDao,
+        private val projectDao: ProjectDao,
+    ) {
 
     fun observeTasks(): Flow<List<TaskEntity>> {
         return taskDao.observeTasks()
@@ -54,5 +59,16 @@ internal class LocalTaskDataSource
 
     suspend fun replaceTasks(tasks: List<TaskEntity>) {
         taskDao.replaceTasks(tasks)
+    }
+
+    suspend fun ensureProjectExists(
+        projectId: Long,
+    ) {
+        projectDao.insertProject(
+            ProjectEntity(
+                id = projectId,
+                name = "Temporary",
+            )
+        )
     }
 }

@@ -24,6 +24,7 @@ import android.content.Context
 import androidx.room.Room
 import com.example.taskflow.core.database.MIGRATION_1_2
 import com.example.taskflow.core.database.TaskFlowDatabase
+import com.example.taskflow.core.database.project.ProjectDao
 import com.example.taskflow.core.database.task.TaskDao
 import dagger.Module
 import dagger.Provides
@@ -53,5 +54,10 @@ object DatabaseModule {
     @Provides
     fun provideTaskDao(database: TaskFlowDatabase): TaskDao {
         return database.getTaskDao()
+    }
+
+    @Provides
+    fun provideProjectDao(database: TaskFlowDatabase): ProjectDao {
+        return database.getProjectDao()
     }
 }

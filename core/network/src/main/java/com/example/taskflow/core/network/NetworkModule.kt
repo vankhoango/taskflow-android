@@ -20,6 +20,7 @@
 
 package com.example.taskflow.core.network
 
+import com.example.taskflow.core.network.interceptor.AppHeaderInterceptor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -37,7 +38,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
     private const val  BASE_URL =
-        "https://jsonplaceholder.typicode.com/"
+        "http://192.168.1.50/"
 
     private val json = Json {
         ignoreUnknownKeys = true
@@ -53,10 +54,13 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideHttpClient(httpLoggingIntercept: HttpLoggingInterceptor): OkHttpClient {
+    fun provideHttpClient(
+        httpLoggingIntercept: HttpLoggingInterceptor,
+        appHeaderInterceptor: AppHeaderInterceptor): OkHttpClient {
         return OkHttpClient.Builder()
             .connectTimeout(10, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
+            .addInterceptor (appHeaderInterceptor)
             .addInterceptor (httpLoggingIntercept)
             .build()
     }

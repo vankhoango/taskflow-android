@@ -48,7 +48,12 @@ internal class TaskRepositoryImpl
     }
 
     override suspend fun refreshTasks() {
-        val tasks = remoteDataSource.getTasks()
+        val projectId = 1L
+
+        val tasks = remoteDataSource.getTasks(projectId)
+
+        localDataSource.ensureProjectExists(projectId)
+
         localDataSource.replaceTasks(tasks.map {
             it.toEntity()
         })

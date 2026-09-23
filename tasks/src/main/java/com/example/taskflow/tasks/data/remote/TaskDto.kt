@@ -24,8 +24,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class TaskDto (
-    val userId: Long,
     val id: Long,
+    val projectId: Long,
     val title: String,
     val completed: Boolean
 ) {
