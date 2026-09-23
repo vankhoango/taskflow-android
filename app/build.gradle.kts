@@ -58,6 +58,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":projects"))
     implementation(project(":tasks"))
 
     implementation(platform(libs.androidx.compose.bom))
