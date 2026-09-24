@@ -38,7 +38,7 @@ internal class LocalProjectDataSource
     }
 
     suspend fun saveProject(project: ProjectEntity) {
-        projectDao.insertProject(project)
+        projectDao.upsertProject(project)
     }
 
     suspend fun deleteProject(projectId: Long) {

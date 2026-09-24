@@ -27,6 +27,7 @@ internal data class TaskUiState (
     val newTaskTitle: String = "",
     val isLoading: Boolean = false,
     val errorMessage:String? = null,
+    val projectId:Long? = null,
 ) {
     val completedCount: Int
         get() = tasks.count { it.completed }

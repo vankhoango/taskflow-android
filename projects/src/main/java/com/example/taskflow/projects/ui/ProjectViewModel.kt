@@ -21,9 +21,6 @@
 package com.example.taskflow.projects.ui
 
 import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.taskflow.projects.domain.Project
@@ -39,7 +36,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.math.log
 
 @HiltViewModel
 class ProjectViewModel @Inject constructor(
@@ -68,17 +64,20 @@ class ProjectViewModel @Inject constructor(
     private fun observeProjects() {
         viewModelScope.launch {
             observeProjectsUseCase().collect { projects ->
-                val selectedProjectId = uiState.value.selectedProjectId
-                    ?.takeIf { selectedId ->
-                        projects.any { it.id == selectedId }
-                    }
-                    ?: projects.firstOrNull()?.id
+                _uiState.update { state ->
+                    val selectedProjectId =
+                        state.selectedProjectId
+                            ?.takeIf { selectedId ->
+                                projects.any { project ->
+                                    project.id == selectedId
+                                }
+                            }
+                            ?: projects.firstOrNull()?.id
 
-                _uiState.update {
-                    it.copy(
+                    state.copy(
                         projects = projects,
-                        isLoading = false,
                         selectedProjectId = selectedProjectId,
+                        isLoading = false,
                     )
                 }
             }
@@ -89,9 +88,7 @@ class ProjectViewModel @Inject constructor(
         projectId: Long,
     ) {
         _uiState.update {
-            it.copy(
-                selectedProjectId = projectId,
-            )
+            it.copy(selectedProjectId = projectId)
         }
     }
 
@@ -201,4 +198,5 @@ class ProjectViewModel @Inject constructor(
             }
         }
     }
+
 }
