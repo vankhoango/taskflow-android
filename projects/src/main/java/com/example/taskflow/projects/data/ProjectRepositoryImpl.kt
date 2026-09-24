@@ -45,7 +45,22 @@ internal class ProjectRepositoryImpl
 
     override suspend fun refreshProjects() {
         val projects = remoteProjectDataSource.getProjects()
-        localProjectDataSource.replaceProjects(projects.map { it.toEntity() })
+        localProjectDataSource.saveProjects(projects.map { it.toEntity() })
+    }
+
+    override suspend fun createProject(name: String) {
+        val project = remoteProjectDataSource.createProject(name)
+        localProjectDataSource.saveProject(project.toEntity())
+    }
+
+    override suspend fun updateProject(projectId: Long, name: String) {
+        val project = remoteProjectDataSource.updateProject(projectId, name)
+        localProjectDataSource.saveProject(project.toEntity())
+    }
+
+    override suspend fun deleteProject(projectId: Long) {
+        remoteProjectDataSource.deleteProject(projectId)
+        localProjectDataSource.deleteProject(projectId)
     }
 
 }

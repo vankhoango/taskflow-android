@@ -30,4 +30,7 @@ interface ProjectDao {
         deleteAllProjects()
         insertProjects(projects)
     }
+
+    @Query("DELETE FROM projects WHERE id = :projectId")
+    suspend fun deleteProject(projectId: Long)
 }

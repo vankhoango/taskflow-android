@@ -23,9 +23,11 @@ package com.example.taskflow.projects.domain
 import kotlinx.coroutines.flow.Flow
 
 interface ProjectRepository {
-
     fun observeProjects(): Flow<List<Project>>
-
     suspend fun refreshProjects()
+
+    suspend fun createProject(name: String)
+    suspend fun updateProject(projectId: Long, name: String)
+    suspend fun deleteProject(projectId: Long)
 
 }

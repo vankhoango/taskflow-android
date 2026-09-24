@@ -30,4 +30,19 @@ internal class RemoteProjectDataSource
         return projectApi.getProjects()
     }
 
+    suspend fun createProject(name: String): ProjectDto {
+        val request = CreateProjectRequest(name)
+        return projectApi.createProject(request)
+    }
+
+    suspend fun updateProject(projectId: Long, name: String): ProjectDto {
+        val request = UpdateProjectRequest(name)
+        return projectApi.updateProject(projectId, request)
+    }
+
+    suspend fun deleteProject(projectId: Long) {
+        projectApi.deleteProject(projectId)
+    }
+
+
 }

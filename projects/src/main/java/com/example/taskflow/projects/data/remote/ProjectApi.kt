@@ -20,9 +20,28 @@
 
 package com.example.taskflow.projects.data.remote
 
+import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.PATCH
+import retrofit2.http.POST
+import retrofit2.http.Path
 
 interface ProjectApi {
     @GET("projects")
     suspend fun getProjects(): List<ProjectDto>
+
+    @POST("projects")
+    suspend fun createProject(
+        @Body request: CreateProjectRequest
+    ): ProjectDto
+
+    @PATCH("projects/{projectId}")
+    suspend fun updateProject(
+        @Path("projectId") projectId: Long,
+        @Body request: UpdateProjectRequest
+    ): ProjectDto
+
+    @DELETE("projects/{projectId}")
+    suspend fun deleteProject(@Path("projectId") projectId: Long)
 }

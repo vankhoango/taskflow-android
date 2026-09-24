@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
+import com.example.taskflow.projects.ui.ProjectsRoute
 import com.example.taskflow.tasks.ui.TaskRoute
 import com.example.taskflow.ui.theme.TaskFlowTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -43,7 +44,8 @@ class MainActivity : ComponentActivity() {
 
             TaskFlowTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    TaskRoute(modifier = Modifier.padding(innerPadding))
+                    //TaskRoute(modifier = Modifier.padding(innerPadding))
+                    ProjectsRoute(modifier = Modifier.padding(innerPadding))
                 }
             }
         }

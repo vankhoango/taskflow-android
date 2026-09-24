@@ -31,11 +31,17 @@ internal class LocalProjectDataSource
     fun observeProjects(): Flow<List<ProjectEntity>> =
         projectDao.observeProjects()
 
-    suspend fun replaceProjects(
+    suspend fun saveProjects(
         projects: List<ProjectEntity>,
     ) {
         projectDao.replaceProjects(projects)
     }
 
+    suspend fun saveProject(project: ProjectEntity) {
+        projectDao.insertProject(project)
+    }
 
+    suspend fun deleteProject(projectId: Long) {
+        projectDao.deleteProject(projectId)
+    }
 }
