@@ -64,31 +64,13 @@ class ProjectViewModel @Inject constructor(
     private fun observeProjects() {
         viewModelScope.launch {
             observeProjectsUseCase().collect { projects ->
-                _uiState.update { state ->
-                    val selectedProjectId =
-                        state.selectedProjectId
-                            ?.takeIf { selectedId ->
-                                projects.any { project ->
-                                    project.id == selectedId
-                                }
-                            }
-                            ?: projects.firstOrNull()?.id
-
-                    state.copy(
+                _uiState.update {
+                    it.copy(
                         projects = projects,
-                        selectedProjectId = selectedProjectId,
                         isLoading = false,
                     )
                 }
             }
-        }
-    }
-
-    fun selectProject(
-        projectId: Long,
-    ) {
-        _uiState.update {
-            it.copy(selectedProjectId = projectId)
         }
     }
 
@@ -187,12 +169,6 @@ class ProjectViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 deleteProjectUseCase(projectId)
-
-                _uiState.update {
-                    it.copy(
-                        selectedProjectId = null,
-                    )
-                }
             } catch (e: Exception) {
                 // Error handling later.
             }

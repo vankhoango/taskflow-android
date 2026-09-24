@@ -76,13 +76,7 @@ fun ProjectsScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = if (
-                        project.id == uiState.selectedProjectId
-                    ) {
-                        "✓ ${project.name}"
-                    } else {
-                        project.name
-                    },
+                    text = project.name,
                     modifier = Modifier.weight(1f),
                 )
 

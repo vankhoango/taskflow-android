@@ -24,7 +24,6 @@ import com.example.taskflow.projects.domain.Project
 
 data class ProjectUiState(
     val projects: List<Project> = emptyList(),
-    val selectedProjectId: Long? = null,
     val isLoading: Boolean = true,
 
     val showEditor : Boolean = false,

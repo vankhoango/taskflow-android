@@ -23,12 +23,18 @@ package com.example.taskflow.tasks.ui
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun TaskRoute(modifier: Modifier = Modifier) {
-    val viewModel: TaskViewModel = viewModel()
+fun TaskRoute(
+    onBack: () -> Unit,
+) {
+    val viewModel: TaskViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    TaskScreen(uiState, viewModel::onEvent, modifier=modifier)
+    TaskScreen(
+        uiState, onBack = onBack,
+        viewModel::onEvent
+    )
 }
