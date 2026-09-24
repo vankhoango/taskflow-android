@@ -21,7 +21,9 @@
 package com.example.taskflow.projects.ui
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
@@ -29,9 +31,10 @@ fun ProjectsRoute(
     modifier: Modifier = Modifier,
 ) {
     val viewModel: ProjectViewModel = viewModel()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     ProjectsScreen(
-        uiState = viewModel.uiState,
+        uiState = uiState,
         onProjectClick = viewModel::selectProject,
         onAddClick = viewModel::startCreatingProject,
         onEditClick = viewModel::startEditingProject,

@@ -33,6 +33,10 @@ import com.example.taskflow.projects.domain.usecase.ObserveProjectsUseCase
 import com.example.taskflow.projects.domain.usecase.RefreshProjectsUseCase
 import com.example.taskflow.projects.domain.usecase.UpdateProjectUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.math.log
@@ -46,8 +50,8 @@ class ProjectViewModel @Inject constructor(
     private val deleteProjectUseCase: DeleteProjectUseCase,
 ) : ViewModel() {
 
-    var uiState by mutableStateOf(ProjectUiState())
-        private set
+    private var _uiState = MutableStateFlow(ProjectUiState())
+    val uiState: StateFlow<ProjectUiState> = _uiState.asStateFlow()
 
     init {
         observeProjects()
@@ -64,17 +68,19 @@ class ProjectViewModel @Inject constructor(
     private fun observeProjects() {
         viewModelScope.launch {
             observeProjectsUseCase().collect { projects ->
-                val selectedProjectId = uiState.selectedProjectId
+                val selectedProjectId = uiState.value.selectedProjectId
                     ?.takeIf { selectedId ->
                         projects.any { it.id == selectedId }
                     }
                     ?: projects.firstOrNull()?.id
 
-                uiState = uiState.copy(
-                    projects = projects,
-                    isLoading = false,
-                    selectedProjectId = selectedProjectId,
-                )
+                _uiState.update {
+                    it.copy(
+                        projects = projects,
+                        isLoading = false,
+                        selectedProjectId = selectedProjectId,
+                    )
+                }
             }
         }
     }
@@ -82,54 +88,64 @@ class ProjectViewModel @Inject constructor(
     fun selectProject(
         projectId: Long,
     ) {
-        uiState = uiState.copy(
-            selectedProjectId = projectId,
-        )
+        _uiState.update {
+            it.copy(
+                selectedProjectId = projectId,
+            )
+        }
     }
 
     fun startCreatingProject() {
-        uiState = uiState.copy(
-            showEditor = true,
-            editingProjectId = null,
-            projectName = "",
-        )
+        _uiState.update {
+            it.copy(
+                showEditor = true,
+                editingProjectId = null,
+                projectName = "",
+            )
+        }
     }
 
     fun startEditingProject(
         project: Project,
     ) {
-        uiState = uiState.copy(
-            showEditor = true,
-            editingProjectId = project.id,
-            projectName = project.name,
-        )
+        _uiState.update {
+            it.copy(
+                showEditor = true,
+                editingProjectId = project.id,
+                projectName = project.name,
+            )
+        }
     }
 
     fun changeProjectName(
         name: String,
     ) {
-        uiState = uiState.copy(
-            projectName = name,
-        )
+        _uiState.update {
+            it.copy(
+                projectName = name,
+            )
+        }
     }
 
     fun cancelEditingProject() {
-        uiState = uiState.copy(
-            showEditor = false,
-            editingProjectId = null,
-            projectName = "",
-        )
+        _uiState.update {
+            it.copy(
+                showEditor = false,
+                editingProjectId = null,
+                projectName = "",
+            )
+        }
     }
 
     fun saveProject() {
-        val name = uiState.projectName.trim()
+        val name = uiState.value.projectName.trim()
 
         if (name.isEmpty()) {
             return
         }
 
         val editingProjectId =
-            uiState.editingProjectId
+            uiState.value.editingProjectId
 
         viewModelScope.launch {
             try {
@@ -152,28 +168,34 @@ class ProjectViewModel @Inject constructor(
     fun requestDeleteProject(
         projectId: Long,
     ) {
-        uiState = uiState.copy(
-            deletingProjectId = projectId,
-        )
+        _uiState.update {
+            it.copy(
+                deletingProjectId = projectId,
+            )
+        }
     }
 
     fun cancelDeleteProject() {
-        uiState = uiState.copy(
-            deletingProjectId = null,
-        )
+        _uiState.update {
+            it.copy(
+                deletingProjectId = null,
+            )
+        }
     }
 
     fun confirmDeleteProject() {
         val projectId =
-            uiState.deletingProjectId ?: return
+            uiState.value.deletingProjectId ?: return
 
         viewModelScope.launch {
             try {
                 deleteProjectUseCase(projectId)
 
-                uiState = uiState.copy(
-                    deletingProjectId = null,
-                )
+                _uiState.update {
+                    it.copy(
+                        selectedProjectId = null,
+                    )
+                }
             } catch (e: Exception) {
                 // Error handling later.
             }
