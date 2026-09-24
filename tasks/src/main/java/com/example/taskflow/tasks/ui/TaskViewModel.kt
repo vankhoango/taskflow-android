@@ -30,18 +30,16 @@ import com.example.taskflow.tasks.domain.usecase.ObserveTasksUseCase
 import com.example.taskflow.tasks.domain.usecase.RefreshTasksUseCase
 import com.example.taskflow.tasks.domain.usecase.ToggleTaskUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import androidx.lifecycle.SavedStateHandle
 
 @HiltViewModel
 internal class TaskViewModel @Inject constructor (
+    savedStateHandle: SavedStateHandle,
     private val observeTasksUseCase: ObserveTasksUseCase,
     private val addTaskUseCase: AddTaskUseCase,
     private val deleteTasksUseCase: DeleteTaskUseCase,
@@ -49,6 +47,11 @@ internal class TaskViewModel @Inject constructor (
     private val clearCompletedTaskUseCase: ClearCompletedTaskUseCase,
     private val refreshTasksUseCase: RefreshTasksUseCase,
 ): ViewModel() {
+
+    private val projectId: Long =
+        checkNotNull(
+            savedStateHandle["projectId"]
+        )
 
     private var _uiState = MutableStateFlow(TaskUiState())
     val uiState = _uiState.asStateFlow()
@@ -60,8 +63,7 @@ internal class TaskViewModel @Inject constructor (
 
     private fun observeTasks() {
         viewModelScope.launch {
-            uiState.value.projectId?.let {
-                observeTasksUseCase(uiState.value.projectId!!)
+                observeTasksUseCase(projectId)
                     .collect { tasks ->
                         _uiState.update {
                             it.copy(
@@ -70,16 +72,13 @@ internal class TaskViewModel @Inject constructor (
                             )
                         }
                     }
-            }
         }
     }
 
     private fun refreshTasks() {
         viewModelScope.launch {
             try {
-                uiState.value.projectId?.let {
-                    refreshTasksUseCase(uiState.value.projectId!!)
-                }
+                refreshTasksUseCase(projectId)
             } catch (e: Exception) {
                 // Cached tasks remain visible.
             }
@@ -94,7 +93,7 @@ internal class TaskViewModel @Inject constructor (
 
     private fun addTask() {
         viewModelScope.launch {
-            val success = addTaskUseCase(uiState.value.projectId!!,
+            val success = addTaskUseCase(projectId,
                 uiState.value.newTaskTitle)
             if (success) {
                 _uiState.update {
