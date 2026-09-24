@@ -27,11 +27,11 @@ import javax.inject.Inject
 internal class AddTaskUseCase
     @Inject
     constructor (private val repository: TaskRepository) {
-    operator suspend fun invoke(title: String): Boolean {
+    operator suspend fun invoke(projectId: Long, title: String): Boolean {
         if (!TaskValidator.isValidTitle(title)) {
             return false
         }
-        repository.addTask(title)
+        repository.createTask(projectId, title)
         return true
     }
 }

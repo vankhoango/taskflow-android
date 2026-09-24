@@ -31,14 +31,14 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 internal class TaskRepositoryImpl
-    @Inject
-    constructor(
-        private val remoteDataSource: RemoteTaskDataSource,
-        private val localDataSource: LocalTaskDataSource
-    ) : TaskRepository {
+@Inject
+constructor(
+    private val remoteDataSource: RemoteTaskDataSource,
+    private val localDataSource: LocalTaskDataSource
+) : TaskRepository {
 
-    override fun observeTasks(): Flow<List<Task>> {
-        return localDataSource.observeTasks()
+    override fun observeTasks(projectId: Long): Flow<List<Task>> {
+        return localDataSource.observeTasks(projectId)
             .map { entities ->
                 entities.map {
                     it.toDomain()
@@ -46,33 +46,28 @@ internal class TaskRepositoryImpl
             }
     }
 
-    override suspend fun refreshTasks() {
-        val projectId = 1L
-
+    override suspend fun refreshTasks(projectId: Long) {
         val tasks = remoteDataSource.getTasks(projectId)
-
-        localDataSource.ensureProjectExists(projectId)
-
-        localDataSource.replaceTasks(tasks.map {
-            it.toEntity()
-        })
+        localDataSource.replaceTasks(projectId, tasks.map { it.toEntity() })
     }
 
-    override suspend fun addTask(title: String) {
-        /*
-        val task = Task(
-            title = title,
-            id = dataSource.generateId()
-        )
-        return dataSource.addTask(task)
-         */
+    override suspend fun createTask(projectId: Long, title: String) {
+        val task = remoteDataSource.createTask(projectId, title)
+        localDataSource.saveTask(task.toEntity())
     }
 
-    override suspend fun updateTask(task: Task) {
-        //return dataSource.updateTask(task)
+    override suspend fun updateTask(
+        taskId: Long,
+        title: String?,
+        completed: Boolean?
+    ) {
+        val task = remoteDataSource.updateTask(taskId, title, completed)
+        localDataSource.saveTask(task.toEntity())
     }
 
-    override suspend fun deleteTask(task: Task) {
-        //return dataSource.removeTask(task)
+    override suspend fun deleteTask(taskId: Long) {
+        remoteDataSource.deleteTask(taskId)
+        localDataSource.deleteTask(taskId)
     }
+
 }

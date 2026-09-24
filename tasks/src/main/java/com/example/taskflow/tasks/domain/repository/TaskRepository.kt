@@ -25,13 +25,13 @@ import kotlinx.coroutines.flow.Flow
 
 internal interface TaskRepository {
 
-    fun observeTasks(): Flow<List<Task>>
+    fun observeTasks(projectId: Long): Flow<List<Task>>
 
-    suspend fun refreshTasks()
+    suspend fun refreshTasks(projectId: Long)
 
-    suspend fun addTask(title: String)
+    suspend fun createTask(projectId: Long, title: String)
 
-    suspend fun updateTask(task: Task)
+    suspend fun updateTask(taskId: Long, title: String?, completed: Boolean?)
 
-    suspend fun deleteTask(task: Task)
+    suspend fun deleteTask(taskId: Long)
 }

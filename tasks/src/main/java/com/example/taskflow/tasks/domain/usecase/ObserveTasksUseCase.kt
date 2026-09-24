@@ -28,7 +28,7 @@ import javax.inject.Inject
 internal class ObserveTasksUseCase
     @Inject
     constructor (private val repository: TaskRepository) {
-    operator fun invoke(): Flow<List<Task>> {
-        return repository.observeTasks()
+    operator fun invoke(projectId: Long): Flow<List<Task>> {
+        return repository.observeTasks(projectId)
     }
 }

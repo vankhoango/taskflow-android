@@ -46,6 +46,8 @@ internal class TaskViewModel @Inject constructor (
     private val refreshTasksUseCase: RefreshTasksUseCase,
 ): ViewModel() {
 
+    val projectId = 1L;
+
     var uiState by mutableStateOf(TaskUiState())
         private set
 
@@ -55,7 +57,7 @@ internal class TaskViewModel @Inject constructor (
 
     private fun observeTasks() {
         viewModelScope.launch {
-            observeTasksUseCase().collect { tasks ->
+            observeTasksUseCase(projectId).collect { tasks ->
                 uiState = uiState.copy(
                     tasks = tasks,
                     isLoading = false,
@@ -69,7 +71,7 @@ internal class TaskViewModel @Inject constructor (
 
         viewModelScope.launch {
             try {
-                refreshTasksUseCase()
+                refreshTasksUseCase(projectId)
             } catch (e: Exception) {
                 // Cached tasks remain visible.
             }
@@ -78,7 +80,7 @@ internal class TaskViewModel @Inject constructor (
 
     private fun addTask() {
         viewModelScope.launch {
-            val success = addTaskUseCase(uiState.newTaskTitle)
+            val success = addTaskUseCase(projectId, uiState.newTaskTitle)
             if (success) {
                 uiState = uiState.copy(
                     newTaskTitle = "",
@@ -94,7 +96,7 @@ internal class TaskViewModel @Inject constructor (
 
     private fun deleteTask(task: Task) {
         viewModelScope.launch {
-            deleteTasksUseCase(task)
+            deleteTasksUseCase(task.id.toLong())
         }
     }
 

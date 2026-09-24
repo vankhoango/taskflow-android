@@ -29,12 +29,8 @@ internal class ToggleTaskUseCase
     @Inject
     constructor (private val repository: TaskRepository) {
     operator suspend fun invoke(task: Task): Boolean {
-        if (!task.completed && !TaskValidator.canComplete(task)) {
-            return false
-        }
-
-        val updatedTask = task.copy(completed = !task.completed)
-        repository.updateTask(updatedTask)
+        val isCompleted = !task.completed
+        repository.updateTask(task.id.toLong(), title = task.title, completed = isCompleted)
         return true
     }
 }

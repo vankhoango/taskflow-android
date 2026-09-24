@@ -26,7 +26,7 @@ import javax.inject.Inject
 internal class RefreshTasksUseCase
 @Inject constructor(private val repository: TaskRepository)
 {
-    operator suspend fun invoke() {
-        repository.refreshTasks()
+    operator suspend fun invoke(projectId: Long) {
+        repository.refreshTasks(projectId)
     }
 }

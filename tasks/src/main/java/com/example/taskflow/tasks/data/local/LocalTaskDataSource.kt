@@ -29,20 +29,19 @@ import javax.inject.Inject
 
 internal class LocalTaskDataSource
     @Inject constructor(
-        private val taskDao: TaskDao,
-        private val projectDao: ProjectDao,
+        private val taskDao: TaskDao
     ) {
 
-    fun observeTasks(): Flow<List<TaskEntity>> {
-        return taskDao.observeTasks()
+    fun observeTasks(projectId: Long): Flow<List<TaskEntity>> {
+        return taskDao.observeTasks(projectId)
+    }
+
+    suspend fun saveTask(task: TaskEntity) {
+        taskDao.insertTask(task)
     }
 
     suspend fun getTask(id: Long): TaskEntity? {
         return taskDao.getTask(id)
-    }
-
-    suspend fun insertTask(task: TaskEntity) {
-        taskDao.insertTask(task)
     }
 
     suspend fun insertTasks(tasks: List<TaskEntity>) {
@@ -57,18 +56,12 @@ internal class LocalTaskDataSource
         taskDao.deleteTask(task)
     }
 
-    suspend fun replaceTasks(tasks: List<TaskEntity>) {
-        taskDao.replaceTasks(tasks)
+    suspend fun deleteTask(id: Long) {
+        taskDao.deleteTaskById(id)
     }
 
-    suspend fun ensureProjectExists(
-        projectId: Long,
-    ) {
-        projectDao.insertProject(
-            ProjectEntity(
-                id = projectId,
-                name = "Temporary",
-            )
-        )
+    suspend fun replaceTasks(projectId: Long, tasks: List<TaskEntity>) {
+        taskDao.replaceTasksForProject(projectId, tasks)
     }
+
 }

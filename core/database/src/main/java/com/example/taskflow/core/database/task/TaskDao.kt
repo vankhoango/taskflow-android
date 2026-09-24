@@ -32,8 +32,15 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface TaskDao {
 
-    @Query("SELECT * FROM tasks")
-    fun observeTasks(): Flow<List<TaskEntity>>
+    @Query(
+        """
+    SELECT *
+    FROM tasks
+    WHERE projectId = :projectId
+    ORDER BY id
+    """
+    )
+    fun observeTasks(projectId: Long): Flow<List<TaskEntity>>
 
     @Query("SELECT * FROM tasks WHERE id = :id")
     suspend fun getTask(id: Long): TaskEntity
@@ -50,12 +57,19 @@ interface TaskDao {
     @Delete
     suspend fun deleteTask(task: TaskEntity)
 
+    @Query("DELETE FROM tasks WHERE id = :id")
+    suspend fun deleteTaskById(id: Long)
+
     @Query("DELETE FROM tasks")
     suspend fun deleteAllTasks()
 
+    @Query("DELETE FROM tasks WHERE projectId = :projectId")
+    suspend fun deleteTasksByProject(projectId: Long)
+
+
     @Transaction
-    suspend fun replaceTasks(tasks: List<TaskEntity>) {
-        deleteAllTasks()
+    suspend fun replaceTasksForProject(projectId: Long, tasks: List<TaskEntity>) {
+        deleteTasksByProject(projectId)
         insertTasks(tasks)
     }
 

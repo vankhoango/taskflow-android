@@ -29,5 +29,16 @@ internal class RemoteTaskDataSource @Inject constructor (
         return remoteApi.getTasks(projectId)
     }
 
-    
+    suspend fun createTask(projectId: Long, title: String): TaskDto {
+        return remoteApi.createTask(projectId, CreateTaskRequest(title))
+    }
+
+    suspend fun updateTask(taskId: Long, title: String?, completed: Boolean?): TaskDto {
+        val request = UpdateTaskRequest(title, completed)
+        return remoteApi.updateTask(taskId, request)
+    }
+
+    suspend fun deleteTask(taskId: Long) {
+        remoteApi.deleteTask(taskId)
+    }
 }
