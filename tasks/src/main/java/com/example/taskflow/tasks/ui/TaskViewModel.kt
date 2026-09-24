@@ -33,6 +33,9 @@ import com.example.taskflow.tasks.domain.usecase.ObserveTasksUseCase
 import com.example.taskflow.tasks.domain.usecase.RefreshTasksUseCase
 import com.example.taskflow.tasks.domain.usecase.ToggleTaskUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -48,23 +51,8 @@ internal class TaskViewModel @Inject constructor (
 
     val projectId = 1L;
 
-    var uiState by mutableStateOf(TaskUiState())
-        private set
-
-    private fun onTaskTitleChange(title: String) {
-        uiState = uiState.copy(newTaskTitle = title)
-    }
-
-    private fun observeTasks() {
-        viewModelScope.launch {
-            observeTasksUseCase(projectId).collect { tasks ->
-                uiState = uiState.copy(
-                    tasks = tasks,
-                    isLoading = false,
-                )
-            }
-        }
-    }
+    private var _uiState = MutableStateFlow(TaskUiState())
+    val uiState = _uiState.asStateFlow()
 
     init {
         observeTasks()
@@ -78,18 +66,33 @@ internal class TaskViewModel @Inject constructor (
         }
     }
 
+    private fun observeTasks() {
+        viewModelScope.launch {
+            observeTasksUseCase(projectId).collect { tasks ->
+                _uiState.update {
+                    it.copy(tasks = tasks, isLoading = false)
+                }
+            }
+        }
+    }
+
+    private fun onTaskTitleChange(title: String) {
+        _uiState.update {
+            it.copy(newTaskTitle = title)
+        }
+    }
+
     private fun addTask() {
         viewModelScope.launch {
-            val success = addTaskUseCase(projectId, uiState.newTaskTitle)
+            val success = addTaskUseCase(projectId, uiState.value.newTaskTitle)
             if (success) {
-                uiState = uiState.copy(
-                    newTaskTitle = "",
-                    errorMessage = null,
-                )
+                _uiState.update {
+                    it.copy(newTaskTitle = "", errorMessage = null)
+                }
             } else {
-                uiState = uiState.copy(
-                    errorMessage = "Task title must contain 3-100 characters",
-                )
+                _uiState.update {
+                    it.copy(errorMessage = "Task title must contain 3-100 characters")
+                }
             }
         }
     }
