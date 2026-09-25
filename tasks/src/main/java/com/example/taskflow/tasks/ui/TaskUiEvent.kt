@@ -28,4 +28,6 @@ internal sealed interface TaskUiEvent {
     data class TaskClicked(val task: Task): TaskUiEvent
     data class DeleteClicked(val task: Task): TaskUiEvent
     data object ClearCompletedClick: TaskUiEvent
+
+    data object BackClicked: TaskUiEvent
 }

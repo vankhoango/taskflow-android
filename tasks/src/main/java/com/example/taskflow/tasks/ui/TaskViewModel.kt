@@ -136,6 +136,7 @@ internal class TaskViewModel @Inject constructor (
             TaskUiEvent.ClearCompletedClick -> {
                 clearCompletedTasks()
             }
+            else -> {}
         }
     }
 

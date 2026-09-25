@@ -52,12 +52,13 @@ import com.example.taskflow.tasks.domain.model.Task
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.TopAppBarColors
+import androidx.compose.material3.TopAppBarDefaults
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun TaskScreen(
     state: TaskUiState,
-    onBack: () -> Unit,
     onEvent: (TaskUiEvent) -> Unit
 ) {
     Scaffold(
@@ -67,13 +68,19 @@ internal fun TaskScreen(
                     Text("Tasks", style = MaterialTheme.typography.titleLarge)
                 },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    IconButton(onClick = {
+                        onEvent(TaskUiEvent.BackClicked)
+                    }) {
                         Icon(
                             Icons.AutoMirrored.Default.ArrowBack,
                             contentDescription = "Back",
                         )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors (
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                )
             )
         }
     ) { innerPadding ->
@@ -189,6 +196,5 @@ fun TaskScreenPreview() {
     TaskScreen(
         state = state,
         onEvent = {},
-        onBack = {}
     )
 }
