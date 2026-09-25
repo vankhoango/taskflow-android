@@ -21,6 +21,7 @@
 package com.example.taskflow.tasks.ui
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,6 +34,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
@@ -134,7 +137,9 @@ private fun TaskListView(
             }
         }
 
-        LazyColumn() {
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
             items(state.tasks) {
                 TaskItem(it,
                     onClick = {
@@ -166,18 +171,27 @@ private fun TaskListView(
 internal fun TaskItem (task: Task, onClick:() -> Unit, onRemove: (Task) -> Unit) {
     Card {
         Row(
-            modifier = Modifier.fillMaxWidth().clickable(true, onClick = onClick),
+            modifier = Modifier.fillMaxWidth()
+                .padding(vertical = 6.dp)
+                .clickable(true, onClick = onClick),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Checkbox(
                 checked = task.completed,
                 onCheckedChange = { onClick() }
             )
-            Text(task.title, modifier = Modifier.padding(start = 8.dp, end = 8.dp).weight(1.0f))
-            OutlinedButton(
-                onClick = { onRemove(task) }
-            ) {
-                Text("Delete")
+            Text(task.title, modifier = Modifier.weight(1.0f))
+            IconButton(onClick={}) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = "Edit"
+                )
+            }
+            IconButton(onClick={onRemove(task)}) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Delete"
+                )
             }
         }
     }
