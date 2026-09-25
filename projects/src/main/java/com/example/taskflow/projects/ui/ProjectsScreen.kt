@@ -49,21 +49,13 @@ fun ProjectsScreen(
     onNameChange: (String) -> Unit,
     onSave: () -> Unit,
     onCancelEditor: () -> Unit,
-    modifier: Modifier = Modifier,
     onConfirmDelete: () -> Unit,
     onCancelDelete: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = modifier.padding(16.dp),
+        modifier = modifier.padding(horizontal = 12.dp),
     ) {
-        Text(
-            text = "Projects",
-            style = MaterialTheme.typography.headlineMedium,
-        )
-
-        Spacer(
-            modifier = Modifier.height(16.dp),
-        )
 
         uiState.projects.forEach { project ->
             Row(
