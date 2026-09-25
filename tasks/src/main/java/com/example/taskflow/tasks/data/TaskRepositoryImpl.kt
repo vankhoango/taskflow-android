@@ -20,6 +20,7 @@
 
 package com.example.taskflow.tasks.data
 
+import android.util.Log
 import com.example.taskflow.tasks.data.local.LocalTaskDataSource
 import com.example.taskflow.tasks.data.remote.RemoteTaskDataSource
 import com.example.taskflow.tasks.domain.model.Task
@@ -47,6 +48,7 @@ constructor(
     }
 
     override suspend fun refreshTasks(projectId: Long) {
+        Log.d("TaskRepositoryImpl", "Refreshing tasks for projectId: ${projectId}")
         val tasks = remoteDataSource.getTasks(projectId)
         localDataSource.replaceTasks(projectId, tasks.map { it.toEntity() })
     }

@@ -20,6 +20,7 @@
 
 package com.example.taskflow.tasks.ui
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.taskflow.tasks.domain.model.Task
@@ -48,6 +49,8 @@ internal class TaskViewModel @Inject constructor (
     private val refreshTasksUseCase: RefreshTasksUseCase,
 ): ViewModel() {
 
+    private val TAG = "TaskViewModel"
+
     private val projectId: Long =
         checkNotNull(
             savedStateHandle["projectId"]
@@ -56,12 +59,13 @@ internal class TaskViewModel @Inject constructor (
     private var _uiState = MutableStateFlow(TaskUiState())
     val uiState = _uiState.asStateFlow()
 
-
     init {
         observeTasks()
+        refreshTasks()
     }
 
     private fun observeTasks() {
+        Log.d(TAG, "Observing tasks for projectId: ${projectId}")
         viewModelScope.launch {
                 observeTasksUseCase(projectId)
                     .collect { tasks ->

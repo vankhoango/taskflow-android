@@ -20,6 +20,7 @@
 
 package com.example.taskflow.tasks.data.local
 
+import android.util.Log
 import com.example.taskflow.core.database.project.ProjectDao
 import com.example.taskflow.core.database.project.ProjectEntity
 import com.example.taskflow.core.database.task.TaskDao
@@ -31,6 +32,8 @@ internal class LocalTaskDataSource
     @Inject constructor(
         private val taskDao: TaskDao
     ) {
+
+    private val TAG = "LocalTaskDataSource"
 
     fun observeTasks(projectId: Long): Flow<List<TaskEntity>> {
         return taskDao.observeTasks(projectId)
@@ -57,10 +60,12 @@ internal class LocalTaskDataSource
     }
 
     suspend fun deleteTask(id: Long) {
+        Log.d(TAG, "Deleting task with id: ${id}")
         taskDao.deleteTaskById(id)
     }
 
     suspend fun replaceTasks(projectId: Long, tasks: List<TaskEntity>) {
+        Log.d(TAG, "Replacing tasks for project with id: ${projectId}")
         taskDao.replaceTasksForProject(projectId, tasks)
     }
 
