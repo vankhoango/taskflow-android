@@ -39,44 +39,82 @@ internal class LocalTaskDataSource
     private val TAG = "LocalTaskDataSource"
 
     fun observeTasks(projectId: Long): Flow<List<TaskEntity>> {
-        return taskDao.observeTasks(projectId)
+        try {
+            return taskDao.observeTasks(projectId)
+        } catch (e: SQLiteException) {
+            throw mapException(e)
+        }
     }
 
     suspend fun saveTask(task: TaskEntity) {
         try {
             taskDao.insertTask(task)
         } catch (e: SQLiteException) {
-            throw TaskException(
-                error = TaskError.Database,
-                cause = e,
-            )
+            throw mapException(e)
         }
     }
 
     suspend fun getTask(id: Long): TaskEntity? {
-        return taskDao.getTask(id)
+        try {
+            return taskDao.getTask(id)
+        } catch (e: SQLiteException) {
+            throw mapException(e)
+        }
     }
 
     suspend fun insertTasks(tasks: List<TaskEntity>) {
-        taskDao.insertTasks(tasks)
+        try {
+            taskDao.insertTasks(tasks)
+        } catch (e: SQLiteException) {
+            throw mapException(e)
+        }
     }
 
     suspend fun updateTask(task: TaskEntity) {
-        taskDao.updateTask(task)
+        try {
+            taskDao.updateTask(task)
+        } catch (e: SQLiteException) {
+            throw mapException(e)
+        }
     }
 
     suspend fun deleteTask(task: TaskEntity) {
-        taskDao.deleteTask(task)
+        try {
+            taskDao.deleteTask(task)
+        } catch (e: SQLiteException) {
+            throw mapException(e)
+        }
     }
 
     suspend fun deleteTask(id: Long) {
-        Log.d(TAG, "Deleting task with id: ${id}")
-        taskDao.deleteTaskById(id)
+        try {
+            Log.d(TAG, "Deleting task with id: ${id}")
+            taskDao.deleteTaskById(id)
+        } catch (e: SQLiteException) {
+            throw mapException(e)
+        }
     }
 
     suspend fun replaceTasks(projectId: Long, tasks: List<TaskEntity>) {
-        Log.d(TAG, "Replacing tasks for project with id: ${projectId}")
-        taskDao.replaceTasksForProject(projectId, tasks)
+        try {
+            Log.d(TAG, "Replacing tasks for project with id: ${projectId}")
+            taskDao.replaceTasksForProject(projectId, tasks)
+        } catch (e: SQLiteException) {
+            throw mapException(e)
+        }
     }
 
+    private fun mapException(e: Exception): TaskException {
+        when (e) {
+            is SQLiteException ->
+                return TaskException(
+                    error = TaskError.Database,
+                    cause = e,
+                )
+            else ->
+                return TaskException(
+                error = TaskError.Unknown,
+                cause = e)
+        }
+    }
 }

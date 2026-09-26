@@ -31,7 +31,11 @@ internal class RemoteTaskDataSource @Inject constructor (
     private val remoteApi: TaskApi
 ) {
     suspend fun getTasks(projectId: Long): List<TaskDto> {
-        return remoteApi.getTasks(projectId)
+        try {
+            return remoteApi.getTasks(projectId)
+        } catch (e: Exception) {
+            throw mapException(e)
+        }
     }
 
     suspend fun createTask(projectId: Long, title: String, ): TaskDto {
@@ -85,7 +89,11 @@ internal class RemoteTaskDataSource @Inject constructor (
     }
 
     suspend fun deleteTask(taskId: Long) {
-        remoteApi.deleteTask(taskId)
+        try {
+            remoteApi.deleteTask(taskId)
+        } catch (e: Exception) {
+            throw mapException(e)
+        }
     }
 
 }
