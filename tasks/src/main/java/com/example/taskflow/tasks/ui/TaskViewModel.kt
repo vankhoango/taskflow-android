@@ -21,6 +21,8 @@
 package com.example.taskflow.tasks.ui
 
 import android.util.Log
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.taskflow.tasks.domain.model.Task
@@ -37,12 +39,16 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import androidx.lifecycle.SavedStateHandle
+import com.example.taskflow.tasks.R
+import com.example.taskflow.tasks.domain.TaskException
+import com.example.taskflow.tasks.domain.usecase.SaveTaskUseCase
 
 @HiltViewModel
 internal class TaskViewModel @Inject constructor (
     savedStateHandle: SavedStateHandle,
     private val observeTasksUseCase: ObserveTasksUseCase,
     private val addTaskUseCase: AddTaskUseCase,
+    private val saveTaskUseCase: SaveTaskUseCase,
     private val deleteTasksUseCase: DeleteTaskUseCase,
     private val toggleTaskUseCase: ToggleTaskUseCase,
     private val clearCompletedTaskUseCase: ClearCompletedTaskUseCase,
@@ -91,25 +97,96 @@ internal class TaskViewModel @Inject constructor (
 
     private fun onTaskTitleChange(title: String) {
         _uiState.update {
-            it.copy(newTaskTitle = title)
+            it.copy(taskEditorUiState = it.taskEditorUiState.copy(editingTaskTitle = title))
+        }
+    }
+
+    private fun saveTask() {
+        if (uiState.value.taskEditorUiState.editingMode) {
+            saveEditTask()
+        } else {
+            addTask()
+        }
+    }
+
+    private fun saveEditTask() {
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    taskEditorUiState = it.taskEditorUiState.copy(
+                        isSaving = true,
+                        error = null,
+                        savingFailed = false,
+                    )
+                )
+            }
+            uiState.value.taskEditorUiState.editingTask?.let {
+                try {
+                    saveTaskUseCase(it, uiState.value.taskEditorUiState.editingTaskTitle)
+                    _uiState.update {
+                        it.copy(
+                            taskEditorUiState = it.taskEditorUiState.copy(
+                                editing = false,
+                                editingTaskTitle = "",
+                                isSaving = false,
+                                savingFailed = false,
+                                error = null,
+                            )
+                        )
+                    }
+                } catch (e: TaskException) {
+                    _uiState.update {
+                        it.copy(
+                            taskEditorUiState = it.taskEditorUiState.copy(
+                                isSaving = false,
+                                savingFailed = true,
+                                error = e.error,
+                            )
+                        )
+                    }
+                }
+            }
         }
     }
 
     private fun addTask() {
         viewModelScope.launch {
-            val success = addTaskUseCase(projectId,
-                uiState.value.newTaskTitle)
-            if (success) {
+            _uiState.update {
+                it.copy(
+                    taskEditorUiState = it.taskEditorUiState.copy(
+                        isSaving = true,
+                        error = null,
+                        savingFailed = false,
+                    )
+                )
+            }
+            try {
+                addTaskUseCase(projectId, uiState.value.taskEditorUiState.editingTaskTitle)
                 _uiState.update {
-                    it.copy(newTaskTitle = "", errorMessage = null)
+                    it.copy(
+                        taskEditorUiState = it.taskEditorUiState.copy(
+                            editing = false,
+                            editingTaskTitle = "",
+                            isSaving = false,
+                            savingFailed = false,
+                            error = null,
+                        )
+                    )
                 }
-            } else {
+            } catch (e: TaskException) {
                 _uiState.update {
-                    it.copy(errorMessage = "Task title must contain 3-100 characters")
+                    it.copy(
+                        taskEditorUiState = it.taskEditorUiState.copy(
+                            isSaving = false,
+                            savingFailed = true,
+                            error = e.error,
+                        )
+                    )
                 }
             }
         }
     }
+
 
     private fun deleteTask(task: Task) {
         viewModelScope.launch {
@@ -123,17 +200,53 @@ internal class TaskViewModel @Inject constructor (
         }
     }
 
+    private fun startAddNewTask() {
+        _uiState.update {
+            it.copy(taskEditorUiState = it.taskEditorUiState.copy(
+                editing = true,
+            ))
+        }
+    }
+
+    private fun startEditingTask(task: Task) {
+        _uiState.update {
+            it.copy(taskEditorUiState = it.taskEditorUiState.copy(
+                editing = true,
+                editingMode = true,
+                editingTaskTitle = task.title,
+                editingTask = task,
+            ))
+        }
+    }
+    private fun cancelEditingTask() {
+        _uiState.update {
+            it.copy(taskEditorUiState = TaskEditorUiState())
+        }
+    }
+
     fun onEvent(event: TaskUiEvent) {
         when(event) {
-            TaskUiEvent.AddClicked -> {
-                addTask()
+            is TaskUiEvent.ToggleTaskClicked -> {
+                toggleTask(event.task)
             }
+
+            TaskUiEvent.AddTaskClicked -> {
+                startAddNewTask()
+            }
+            TaskUiEvent.CancelEditClicked -> {
+                cancelEditingTask()
+            }
+            TaskUiEvent.SaveNewTaskClicked -> {
+                saveTask()
+            }
+            is TaskUiEvent.EditTaskClicked -> {
+                startEditingTask(event.task)
+            }
+
             is TaskUiEvent.DeleteClicked -> {
                 deleteTask(event.task)
             }
-            is TaskUiEvent.TaskClicked -> {
-                toggleTask(event.task)
-            }
+
             is TaskUiEvent.TitleChanged -> {
                 onTaskTitleChange(event.newTitle)
             }

@@ -20,7 +20,12 @@
 
 package com.example.taskflow.tasks.data.remote
 
+import com.example.taskflow.tasks.domain.TaskError
+import com.example.taskflow.tasks.domain.TaskException
 import javax.inject.Inject
+import retrofit2.HttpException
+import java.io.IOException
+import java.net.SocketTimeoutException
 
 internal class RemoteTaskDataSource @Inject constructor (
     private val remoteApi: TaskApi
@@ -29,16 +34,58 @@ internal class RemoteTaskDataSource @Inject constructor (
         return remoteApi.getTasks(projectId)
     }
 
-    suspend fun createTask(projectId: Long, title: String): TaskDto {
-        return remoteApi.createTask(projectId, CreateTaskRequest(title))
+    suspend fun createTask(projectId: Long, title: String, ): TaskDto {
+        try {
+            return remoteApi.createTask(
+                projectId = projectId,
+                request = CreateTaskRequest(title),
+            )
+        } catch (e: Exception) {
+            throw mapException(e)
+        }
+    }
+
+    private fun mapException(e: Exception): TaskException{
+        when (e) {
+            is HttpException ->
+                return TaskException(
+                    error = when (e.code()) {
+                        400 -> TaskError.InvalidRequest
+                        404 -> TaskError.ProjectNotFound
+                        in 500..599 -> TaskError.ServerError(e.code())
+                        else -> TaskError.Unknown
+                    },
+                    cause = e,
+                )
+            is SocketTimeoutException ->
+                return TaskException(
+                    error = TaskError.Timeout,
+                    cause = e,
+                )
+            is IOException ->
+                return TaskException(
+                    error = TaskError.NetworkUnavailable,
+                    cause = e,
+                )
+            else ->
+                return TaskException(
+                    error = TaskError.Unknown,
+                    cause = e,
+                )
+        }
     }
 
     suspend fun updateTask(taskId: Long, title: String?, completed: Boolean?): TaskDto {
         val request = UpdateTaskRequest(title, completed)
-        return remoteApi.updateTask(taskId, request)
+        try {
+            return remoteApi.updateTask(taskId, request)
+        } catch (e: Exception) {
+            throw mapException(e)
+        }
     }
 
     suspend fun deleteTask(taskId: Long) {
         remoteApi.deleteTask(taskId)
     }
+
 }

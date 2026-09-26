@@ -20,11 +20,14 @@
 
 package com.example.taskflow.tasks.data.local
 
+import android.database.sqlite.SQLiteException
 import android.util.Log
 import com.example.taskflow.core.database.project.ProjectDao
 import com.example.taskflow.core.database.project.ProjectEntity
 import com.example.taskflow.core.database.task.TaskDao
 import com.example.taskflow.core.database.task.TaskEntity
+import com.example.taskflow.tasks.domain.TaskError
+import com.example.taskflow.tasks.domain.TaskException
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
@@ -40,7 +43,14 @@ internal class LocalTaskDataSource
     }
 
     suspend fun saveTask(task: TaskEntity) {
-        taskDao.insertTask(task)
+        try {
+            taskDao.insertTask(task)
+        } catch (e: SQLiteException) {
+            throw TaskException(
+                error = TaskError.Database,
+                cause = e,
+            )
+        }
     }
 
     suspend fun getTask(id: Long): TaskEntity? {

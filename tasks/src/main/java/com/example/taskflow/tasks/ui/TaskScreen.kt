@@ -29,18 +29,24 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -51,10 +57,19 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import com.example.taskflow.tasks.R
+import com.example.taskflow.tasks.domain.TaskError
 import com.example.taskflow.tasks.domain.model.Task
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -63,6 +78,7 @@ internal fun TaskScreen(
     state: TaskUiState,
     onEvent: (TaskUiEvent) -> Unit
 ) {
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -79,14 +95,26 @@ internal fun TaskScreen(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors (
+                colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface,
                     titleContentColor = MaterialTheme.colorScheme.onSurface,
                 )
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    onEvent(TaskUiEvent.AddTaskClicked)
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "New Task"
+                )
+            }
         }
     ) { innerPadding ->
-        Box (modifier = Modifier.padding(innerPadding)) {
+        Box(modifier = Modifier.padding(innerPadding)) {
             state.errorMessage?.let {
                 Text(
                     text = state.errorMessage,
@@ -109,7 +137,137 @@ internal fun TaskScreen(
             }
         }
     }
+
+    if (state.taskEditorUiState.editing) {
+        TaskEditor(
+            taskEditorState = state.taskEditorUiState,
+            onTextChange = {
+                onEvent(TaskUiEvent.TitleChanged(it))
+            },
+            onSaveClick = {
+                onEvent(TaskUiEvent.SaveNewTaskClicked)
+            },
+            onCancelClick = {
+                onEvent(TaskUiEvent.CancelEditClicked)
+            }
+        )
+    }
 }
+
+@Composable
+internal fun TaskEditor(
+    taskEditorState: TaskEditorUiState,
+    onTextChange: (String) -> Unit,
+    onSaveClick: () -> Unit,
+    onCancelClick: () -> Unit
+) {
+
+    Dialog(onDismissRequest = {}) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(0.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text(
+                    text = if (taskEditorState.editingMode) stringResource(R.string.edit_task)
+                    else stringResource(R.string.new_task),
+                )
+                OutlinedTextField(
+                    value = taskEditorState.editingTaskTitle,
+                    onValueChange = onTextChange,
+                    label = { Text(stringResource(R.string.task)) }
+                )
+                if (taskEditorState.savingFailed) {
+                    taskEditorState.error?.let {
+                        Text(
+                            text = taskEditorState.error.toMessage(),
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    OutlinedButton(onCancelClick) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Delete"
+                            )
+                            Text(
+                                text = stringResource(R.string.cancel),
+                                modifier = Modifier.padding(start = 4.dp)
+                            )
+                        }
+                    }
+
+                    val disabled = taskEditorState.editingTaskTitle.isEmpty()
+                            || taskEditorState.isSaving
+
+                    Button(
+                        modifier = Modifier.padding(start = 8.dp),
+                        onClick = onSaveClick,
+                        enabled = !disabled
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            if (taskEditorState.isSaving) {
+                                CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Default.Check,
+                                    contentDescription = "Add"
+                                )
+                            }
+                            Text(
+                                text = stringResource(R.string.save),
+                                modifier = Modifier.padding(start = 4.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+@Composable
+internal fun TaskError.toMessage(): String =
+    when (this) {
+        TaskError.InvalidTask ->
+            stringResource(R.string.error_invalid_title)
+
+        TaskError.NetworkUnavailable ->
+            stringResource(R.string.error_network)
+
+        TaskError.Timeout ->
+            stringResource(R.string.error_timeout)
+
+        TaskError.ProjectNotFound ->
+            stringResource(R.string.error_project_not_found)
+
+        is TaskError.ServerError ->
+            stringResource(
+                R.string.error_server,
+                statusCode,
+            )
+
+        TaskError.Database ->
+            stringResource(R.string.error_database)
+
+        else ->
+            stringResource(R.string.error_unknown)
+    }
 
 @Composable
 private fun TaskListView(
@@ -141,9 +299,13 @@ private fun TaskListView(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(state.tasks) {
-                TaskItem(it,
+                TaskItem(
+                    it,
                     onClick = {
-                        onEvent(TaskUiEvent.TaskClicked(it))
+                        onEvent(TaskUiEvent.ToggleTaskClicked(it))
+                    },
+                    onEdit = { task ->
+                        onEvent(TaskUiEvent.EditTaskClicked(task))
                     },
                     onRemove = {
                         onEvent(TaskUiEvent.DeleteClicked(it))
@@ -152,26 +314,16 @@ private fun TaskListView(
             }
         }
 
-        OutlinedTextField(
-            value = state.newTaskTitle,
-            onValueChange = {
-                onEvent(TaskUiEvent.TitleChanged(it))
-            },
-            label = { Text("Task Title") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Button(onClick = {
-            onEvent(TaskUiEvent.AddClicked)
-        }) { Text("Add Task") }
     }
 }
 
 @Composable
-internal fun TaskItem (task: Task, onClick:() -> Unit, onRemove: (Task) -> Unit) {
+internal fun TaskItem(task: Task, onClick: () -> Unit, onEdit: (Task) -> Unit,
+onRemove: (Task) -> Unit) {
     Card {
         Row(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(vertical = 6.dp)
                 .clickable(true, onClick = onClick),
             verticalAlignment = Alignment.CenterVertically,
@@ -181,13 +333,13 @@ internal fun TaskItem (task: Task, onClick:() -> Unit, onRemove: (Task) -> Unit)
                 onCheckedChange = { onClick() }
             )
             Text(task.title, modifier = Modifier.weight(1.0f))
-            IconButton(onClick={}) {
+            IconButton(onClick = {onEdit(task)}) {
                 Icon(
                     imageVector = Icons.Default.Edit,
                     contentDescription = "Edit"
                 )
             }
-            IconButton(onClick={onRemove(task)}) {
+            IconButton(onClick = { onRemove(task) }) {
                 Icon(
                     imageVector = Icons.Default.Delete,
                     contentDescription = "Delete"

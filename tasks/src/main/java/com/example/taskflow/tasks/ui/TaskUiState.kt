@@ -20,14 +20,29 @@
 
 package com.example.taskflow.tasks.ui
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import com.example.taskflow.tasks.domain.TaskError
 import com.example.taskflow.tasks.domain.model.Task
 
 internal data class TaskUiState (
     val tasks: List<Task> = emptyList(),
-    val newTaskTitle: String = "",
     val isLoading: Boolean = false,
     val errorMessage:String? = null,
+    val taskEditorUiState: TaskEditorUiState = TaskEditorUiState(),
 ) {
     val completedCount: Int
         get() = tasks.count { it.completed }
 }
+
+internal data class TaskEditorUiState (
+    val editing: Boolean = false,
+    val editingTaskTitle: String = "",
+    val editingMode: Boolean = false,
+    val isSaving: Boolean = false,
+    val savingFailed: Boolean = false,
+    val error: TaskError? = null,
+    val editingTask: Task? = null,
+)

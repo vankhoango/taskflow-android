@@ -20,6 +20,8 @@
 
 package com.example.taskflow.tasks.domain.usecase
 
+import com.example.taskflow.tasks.domain.TaskError
+import com.example.taskflow.tasks.domain.TaskException
 import com.example.taskflow.tasks.domain.TaskValidator
 import com.example.taskflow.tasks.domain.repository.TaskRepository
 import javax.inject.Inject
@@ -27,11 +29,14 @@ import javax.inject.Inject
 internal class AddTaskUseCase
     @Inject
     constructor (private val repository: TaskRepository) {
-    operator suspend fun invoke(projectId: Long, title: String): Boolean {
+
+    operator suspend fun invoke(projectId: Long, title: String) {
         if (!TaskValidator.isValidTitle(title)) {
-            return false
+            throw TaskException(
+                error = TaskError.InvalidTask,
+            )
         }
         repository.createTask(projectId, title)
-        return true
     }
+
 }
