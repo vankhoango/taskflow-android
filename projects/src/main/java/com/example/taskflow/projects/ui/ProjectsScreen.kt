@@ -27,8 +27,15 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -72,20 +79,26 @@ fun ProjectsScreen(
                     modifier = Modifier.weight(1f),
                 )
 
-                TextButton(
+                IconButton(
                     onClick = {
                         onEditClick(project)
                     },
                 ) {
-                    Text("Edit")
+                    Icon(
+                        imageVector = Icons.Outlined.Edit,
+                        contentDescription = "Edit"
+                    )
                 }
 
-                TextButton(
+                IconButton(
                     onClick = {
                         onDeleteClick(project.id)
                     },
                 ) {
-                    Text("Delete")
+                    Icon(
+                        imageVector = Icons.Outlined.Delete,
+                        contentDescription = "Delete"
+                    )
                 }
             }
         }

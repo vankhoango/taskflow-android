@@ -41,8 +41,8 @@ internal class LocalTaskDataSource
 
     fun observeTasks(projectId: Long): Flow<List<TaskEntity>> {
         try {
-            //return taskDao.observeTasks(projectId)
-            throw SQLiteException("Test")
+            return taskDao.observeTasks(projectId)
+            //throw SQLiteException("Test")
         } catch (e: Exception) {
             //Log.d("LocalTaskDataSource", "Error observing tasks: ${e.message}")
             throw mapException(e)
