@@ -23,15 +23,20 @@ package com.example.taskflow.projects.ui
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.taskflow.projects.R
 import com.example.taskflow.projects.domain.Project
+import com.example.taskflow.projects.domain.ProjectError
+import com.example.taskflow.projects.domain.ProjectException
 import com.example.taskflow.projects.domain.usecase.CreateProjectUseCase
 import com.example.taskflow.projects.domain.usecase.DeleteProjectUseCase
 import com.example.taskflow.projects.domain.usecase.ObserveProjectsUseCase
 import com.example.taskflow.projects.domain.usecase.RefreshProjectsUseCase
 import com.example.taskflow.projects.domain.usecase.UpdateProjectUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -46,21 +51,18 @@ class ProjectViewModel @Inject constructor(
     private val deleteProjectUseCase: DeleteProjectUseCase,
 ) : ViewModel() {
 
+    private val TAG = "ProjectViewModel"
     private var _uiState = MutableStateFlow(ProjectUiState())
     val uiState: StateFlow<ProjectUiState> = _uiState.asStateFlow()
+
+    private var _uiEffect = MutableSharedFlow<ProjectUiEffect>(replay = 1)
+    var uiEffect = _uiEffect.asSharedFlow()
 
     lateinit var onProjectDetailsClicked: (Long) -> Unit
 
     init {
         observeProjects()
-
-        viewModelScope.launch {
-            try {
-                refreshProjectsUseCase()
-            } catch (e: Exception) {
-                // Proper network error handling comes later.
-            }
-        }
+        refreshProject()
     }
 
     fun onEvent(event: ProjectUiEvent) {
@@ -98,13 +100,31 @@ class ProjectViewModel @Inject constructor(
 
     private fun observeProjects() {
         viewModelScope.launch {
-            observeProjectsUseCase().collect { projects ->
-                _uiState.update {
-                    it.copy(
-                        projects = projects,
-                        isLoading = false,
-                    )
+            try {
+                observeProjectsUseCase().collect { projects ->
+                    _uiState.update {
+                        it.copy(
+                            projects = projects,
+                            isLoading = false,
+                        )
+                    }
                 }
+            } catch (e: ProjectException) {
+                val errorStringResource = e.error.toStringResource()
+                Log.e(TAG, "Error while observing project", e.cause)
+                _uiEffect.emit(ProjectUiEffect.ShowError(errorStringResource))
+            }
+        }
+    }
+
+    private fun refreshProject() {
+        viewModelScope.launch {
+            try {
+                refreshProjectsUseCase()
+            } catch (e: ProjectException) {
+                val errorStringResource = e.error.toStringResource()
+                Log.e(TAG, "Error while refreshing project", e.cause)
+                _uiEffect.emit(ProjectUiEffect.ShowError(errorStringResource))
             }
         }
     }
@@ -171,10 +191,12 @@ class ProjectViewModel @Inject constructor(
                         name = name,
                     )
                 }
-
+                _uiEffect.emit(ProjectUiEffect.ShowMessage(R.string.project_saved))
                 cancelEditingProject()
-            } catch (e: Exception) {
-                Log.e("Projects", "Error while saving project", e)
+            } catch (e: ProjectException) {
+                val errorStringResource = e.error.toStringResource()
+                Log.e(TAG, "Error while saving project", e.cause)
+                _uiEffect.emit(ProjectUiEffect.ShowError(errorStringResource))
             }
         }
     }
@@ -209,9 +231,23 @@ class ProjectViewModel @Inject constructor(
                         deletingProjectId = null,
                     )
                 }
-            } catch (e: Exception) {
-                // Error handling later.
+                _uiEffect.emit(ProjectUiEffect.ShowMessage(R.string.project_deleted))
+            } catch (e: ProjectException) {
+                val errorStringResource = e.error.toStringResource()
+                Log.e(TAG, "Error while deleting project", e.cause)
+                _uiEffect.emit(ProjectUiEffect.ShowError(errorStringResource))
             }
         }
     }
+
+    private fun ProjectError.toStringResource() =
+        when (this) {
+            ProjectError.InvalidProject -> R.string.error_invalid_name
+            ProjectError.NetworkUnavailable -> R.string.error_network
+            ProjectError.Timeout -> R.string.error_timeout
+            ProjectError.ProjectNotFound -> R.string.error_project_not_found
+            is ProjectError.ServerError -> R.string.error_server
+            ProjectError.Database -> R.string.error_database
+            else -> R.string.error_unknown
+        }
 }

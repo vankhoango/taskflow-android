@@ -27,9 +27,11 @@
     <string name="edit_project">Edit Project</string>
     <string name="name">Name</string>
     <string name="save">Save</string>
+    <string name="project_saved">Project saved!</string>
     <string name="cancel">Cancel</string>
     <string name="delete_project_confirm">Delete Project?</string>
     <string name="delete_project_confirm_details">This will also delete the project\'s tasks.</string>
+    <string name="project_deleted">Project deleted!</string>
 
     <string name="error_saving">Couldn\'t save project</string>
     <string name="error_invalid_name">Invalid project name</string>

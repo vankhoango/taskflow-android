@@ -45,6 +45,7 @@ fun ProjectsRoute(
 
     ProjectsScreen(
         uiState = uiState,
+        uiEffect = viewModel.uiEffect,
         onEvent = viewModel::onEvent
     )
 }

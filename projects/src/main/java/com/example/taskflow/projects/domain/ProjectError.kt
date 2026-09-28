@@ -25,7 +25,7 @@ internal sealed interface ProjectError {
     data object Timeout : ProjectError
     data object ProjectNotFound : ProjectError
     data object InvalidRequest : ProjectError
-    data object InvalidTask : ProjectError
+    data object InvalidProject : ProjectError
     data class ServerError(val statusCode: Int) : ProjectError
     data object Database: ProjectError
     data object Unknown : ProjectError

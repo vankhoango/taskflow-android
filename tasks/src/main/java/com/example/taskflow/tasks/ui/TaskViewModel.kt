@@ -83,15 +83,6 @@ internal class TaskViewModel @Inject constructor (
         viewModelScope.launch {
             try {
                 observeTasksUseCase(projectId)
-                    .catch { e ->
-                        if (e is TaskException) {
-                            val errorStringResource = e.error.toStringResource()
-                            Log.d(TAG, "Error observing tasks: ${errorStringResource}")
-                            _uiEffect.emit(TaskUiEffect.ShowError(errorStringResource))
-                        } else {
-                            Log.e("TaskViewModel", "Error observing tasks", e)
-                        }
-                    }
                     .collect { tasks ->
                         _uiState.update {
                             it.copy(

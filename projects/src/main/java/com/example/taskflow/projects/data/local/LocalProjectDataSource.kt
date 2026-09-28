@@ -20,28 +20,61 @@
 
 package com.example.taskflow.projects.data.local
 
+import android.database.sqlite.SQLiteException
 import com.example.taskflow.core.database.project.ProjectDao
 import com.example.taskflow.core.database.project.ProjectEntity
+import com.example.taskflow.projects.domain.ProjectError
+import com.example.taskflow.projects.domain.ProjectException
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 internal class LocalProjectDataSource
 @Inject constructor(private val projectDao: ProjectDao)
 {
-    fun observeProjects(): Flow<List<ProjectEntity>> =
-        projectDao.observeProjects()
+    fun observeProjects(): Flow<List<ProjectEntity>> {
+        try {
+            return projectDao.observeProjects()
+        } catch (e: Exception) {
+            throw mapException(e)
+        }
+    }
 
-    suspend fun saveProjects(
-        projects: List<ProjectEntity>,
+    suspend fun saveProjects(projects: List<ProjectEntity>,
     ) {
-        projectDao.replaceProjects(projects)
+        try {
+            projectDao.replaceProjects(projects)
+        } catch (e: Exception) {
+            throw mapException(e)
+        }
     }
 
     suspend fun saveProject(project: ProjectEntity) {
-        projectDao.upsertProject(project)
+        try {
+            projectDao.upsertProject(project)
+        } catch (e: Exception) {
+            throw mapException(e)
+        }
     }
 
     suspend fun deleteProject(projectId: Long) {
-        projectDao.deleteProject(projectId)
+        try {
+            projectDao.deleteProject(projectId)
+        } catch (e: Exception) {
+            throw mapException(e)
+        }
+    }
+
+    private fun mapException(e: Exception): ProjectException {
+        when (e) {
+            is SQLiteException ->
+                return ProjectException(
+                    error = ProjectError.Database,
+                    cause = e,
+                )
+            else ->
+                return ProjectException(
+                    error = ProjectError.Unknown,
+                    cause = e)
+        }
     }
 }

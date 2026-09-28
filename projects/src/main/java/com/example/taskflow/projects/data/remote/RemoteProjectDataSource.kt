@@ -20,29 +20,78 @@
 
 package com.example.taskflow.projects.data.remote
 
-import com.example.taskflow.projects.domain.Project
+import com.example.taskflow.projects.domain.ProjectError
+import com.example.taskflow.projects.domain.ProjectException
+import retrofit2.HttpException
+import java.io.IOException
+import java.net.SocketTimeoutException
 import javax.inject.Inject
 
 internal class RemoteProjectDataSource
+
     @Inject constructor(private val projectApi: ProjectApi) {
 
     suspend fun getProjects(): List<ProjectDto> {
-        return projectApi.getProjects()
+        try {
+            return projectApi.getProjects()
+        } catch (e: Exception) {
+            throw mapException(e)
+        }
     }
 
     suspend fun createProject(name: String): ProjectDto {
-        val request = CreateProjectRequest(name)
-        return projectApi.createProject(request)
+        try {
+            val request = CreateProjectRequest(name)
+            return projectApi.createProject(request)
+        } catch (e: Exception) {
+            throw mapException(e)
+        }
     }
 
     suspend fun updateProject(projectId: Long, name: String): ProjectDto {
-        val request = UpdateProjectRequest(name)
-        return projectApi.updateProject(projectId, request)
+        try {
+            val request = UpdateProjectRequest(name)
+            return projectApi.updateProject(projectId, request)
+        } catch (e: Exception) {
+            throw mapException(e)
+        }
     }
 
     suspend fun deleteProject(projectId: Long) {
-        projectApi.deleteProject(projectId)
+        try {
+            projectApi.deleteProject(projectId)
+        } catch (e: Exception) {
+            throw mapException(e)
+        }
     }
 
-
+    private fun mapException(e: Exception): ProjectException {
+        when (e) {
+            is HttpException ->
+                return ProjectException(
+                    error = when (e.code()) {
+                        400 -> ProjectError.InvalidRequest
+                        404 -> ProjectError.ProjectNotFound
+                        in 500..599 -> ProjectError.ServerError(e.code())
+                        else -> ProjectError.Unknown
+                    },
+                    cause = e,
+                )
+            is SocketTimeoutException ->
+                return ProjectException(
+                    error = ProjectError.Timeout,
+                    cause = e,
+                )
+            is IOException ->
+                return ProjectException(
+                    error = ProjectError.NetworkUnavailable,
+                    cause = e,
+                )
+            else ->
+                return ProjectException(
+                    error = ProjectError.Unknown,
+                    cause = e,
+                )
+        }
+    }
 }

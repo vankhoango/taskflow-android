@@ -20,6 +20,7 @@
 
 package com.example.taskflow.projects.ui
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -47,15 +48,21 @@ import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.taskflow.core.network.R
@@ -70,14 +77,36 @@ import com.example.taskflow.projects.R.string.name
 import com.example.taskflow.projects.R.string.projects
 import com.example.taskflow.projects.R.string.save
 import com.example.taskflow.projects.domain.Project
+import kotlinx.coroutines.flow.SharedFlow
 
+@SuppressLint("LocalContextGetResourceValueCall")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProjectsScreen(
     uiState: ProjectUiState,
+    uiEffect: SharedFlow<ProjectUiEffect>,
     onEvent: (ProjectUiEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val snackbar = remember { SnackbarHostState() }
+    val context = LocalContext.current
+    LaunchedEffect(Unit) {
+        uiEffect.collect { effect ->
+            when (effect) {
+                is ProjectUiEffect.ShowError -> {
+                    val message = context.getString(effect.errorStringResource)
+                    //show error
+                    snackbar.showSnackbar(message, duration = SnackbarDuration.Short)
+                }
+
+                is ProjectUiEffect.ShowMessage -> {
+                    val message = context.getString(effect.messageStringResource)
+                    snackbar.showSnackbar(message, duration = SnackbarDuration.Short)
+                }
+            }
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar (
@@ -94,7 +123,8 @@ fun ProjectsScreen(
             ) {
                 Icon(Icons.Filled.Add, stringResource(add_project))
             }
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbar) }
     ) { innerPadding ->
         LazyColumn (
             modifier = modifier
