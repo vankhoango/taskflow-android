@@ -43,6 +43,6 @@ internal data class TaskEditorUiState (
     val editingMode: Boolean = false,
     val isSaving: Boolean = false,
     val savingFailed: Boolean = false,
-    val error: TaskError? = null,
+    val error: Int? = null,
     val editingTask: Task? = null,
 )

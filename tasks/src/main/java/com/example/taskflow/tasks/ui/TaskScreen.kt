@@ -20,6 +20,8 @@
 
 package com.example.taskflow.tasks.ui
 
+import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -53,10 +55,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -64,6 +69,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -71,15 +77,35 @@ import androidx.compose.ui.window.Dialog
 import com.example.taskflow.tasks.R
 import com.example.taskflow.tasks.domain.TaskError
 import com.example.taskflow.tasks.domain.model.Task
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.emptyFlow
 
+@SuppressLint("LocalContextGetResourceValueCall")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun TaskScreen(
     state: TaskUiState,
+    effectFlow: SharedFlow<TaskUiEffect>,
     onEvent: (TaskUiEvent) -> Unit
 ) {
 
+    val snackbar = remember { SnackbarHostState() }
+    val context = LocalContext.current
+    LaunchedEffect(Unit) {
+        effectFlow.collect { e ->
+            when (e) {
+                is TaskUiEffect.ShowError -> {
+                    val message = context.getString(e.errorStringResource)
+                    snackbar.showSnackbar(message)
+                }
+                else -> {}
+            }
+        }
+    }
+
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbar) },
         topBar = {
             TopAppBar(
                 title = {
@@ -112,7 +138,7 @@ internal fun TaskScreen(
                     contentDescription = "New Task"
                 )
             }
-        }
+        },
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
             state.errorMessage?.let {
@@ -184,7 +210,7 @@ internal fun TaskEditor(
                 if (taskEditorState.savingFailed) {
                     taskEditorState.error?.let {
                         Text(
-                            text = taskEditorState.error.toMessage(),
+                            text = stringResource(taskEditorState.error),
                             color = MaterialTheme.colorScheme.error
                         )
                     }
@@ -239,35 +265,6 @@ internal fun TaskEditor(
         }
     }
 }
-
-
-@Composable
-internal fun TaskError.toMessage(): String =
-    when (this) {
-        TaskError.InvalidTask ->
-            stringResource(R.string.error_invalid_title)
-
-        TaskError.NetworkUnavailable ->
-            stringResource(R.string.error_network)
-
-        TaskError.Timeout ->
-            stringResource(R.string.error_timeout)
-
-        TaskError.ProjectNotFound ->
-            stringResource(R.string.error_project_not_found)
-
-        is TaskError.ServerError ->
-            stringResource(
-                R.string.error_server,
-                statusCode,
-            )
-
-        TaskError.Database ->
-            stringResource(R.string.error_database)
-
-        else ->
-            stringResource(R.string.error_unknown)
-    }
 
 @Composable
 private fun TaskListView(
@@ -361,6 +358,7 @@ fun TaskScreenPreview() {
     )
     TaskScreen(
         state = state,
+        effectFlow = MutableSharedFlow(),
         onEvent = {},
     )
 }

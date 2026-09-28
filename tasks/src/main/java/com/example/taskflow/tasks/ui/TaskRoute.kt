@@ -33,8 +33,10 @@ fun TaskRoute(
 ) {
     val viewModel: TaskViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiEffect = viewModel.uiEffect
     TaskScreen(
         uiState,
+        effectFlow = uiEffect,
         onEvent = {
             when (it) {
                 TaskUiEvent.BackClicked -> onBack()

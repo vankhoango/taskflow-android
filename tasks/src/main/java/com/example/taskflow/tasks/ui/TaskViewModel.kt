@@ -40,8 +40,13 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import androidx.lifecycle.SavedStateHandle
 import com.example.taskflow.tasks.R
+import com.example.taskflow.tasks.domain.TaskError
 import com.example.taskflow.tasks.domain.TaskException
 import com.example.taskflow.tasks.domain.usecase.SaveTaskUseCase
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flatMapLatest
 
 @HiltViewModel
 internal class TaskViewModel @Inject constructor (
@@ -65,6 +70,9 @@ internal class TaskViewModel @Inject constructor (
     private var _uiState = MutableStateFlow(TaskUiState())
     val uiState = _uiState.asStateFlow()
 
+    private var _uiEffect = MutableSharedFlow<TaskUiEffect>(replay = 1)
+    val uiEffect = _uiEffect.asSharedFlow()
+
     init {
         observeTasks()
         refreshTasks()
@@ -73,7 +81,17 @@ internal class TaskViewModel @Inject constructor (
     private fun observeTasks() {
         Log.d(TAG, "Observing tasks for projectId: ${projectId}")
         viewModelScope.launch {
+            try {
                 observeTasksUseCase(projectId)
+                    .catch { e ->
+                        if (e is TaskException) {
+                            val errorStringResource = e.error.toStringResource()
+                            Log.d(TAG, "Error observing tasks: ${errorStringResource}")
+                            _uiEffect.emit(TaskUiEffect.ShowError(errorStringResource))
+                        } else {
+                            Log.e("TaskViewModel", "Error observing tasks", e)
+                        }
+                    }
                     .collect { tasks ->
                         _uiState.update {
                             it.copy(
@@ -82,6 +100,15 @@ internal class TaskViewModel @Inject constructor (
                             )
                         }
                     }
+            } catch (ex: Exception) {
+                if (ex is TaskException) {
+                    val errorStringResource = ex.error.toStringResource()
+                    Log.d(TAG, "Error observing tasks: ${errorStringResource}")
+                    _uiEffect.emit(TaskUiEffect.ShowError(errorStringResource))
+                } else {
+                    throw ex
+                }
+            }
         }
     }
 
@@ -140,7 +167,7 @@ internal class TaskViewModel @Inject constructor (
                             taskEditorUiState = it.taskEditorUiState.copy(
                                 isSaving = false,
                                 savingFailed = true,
-                                error = e.error,
+                                error = e.error.toStringResource(),
                             )
                         )
                     }
@@ -179,7 +206,7 @@ internal class TaskViewModel @Inject constructor (
                         taskEditorUiState = it.taskEditorUiState.copy(
                             isSaving = false,
                             savingFailed = true,
-                            error = e.error,
+                            error = e.error.toStringResource(),
                         )
                     )
                 }
@@ -263,4 +290,14 @@ internal class TaskViewModel @Inject constructor (
         }
     }
 
+    private fun TaskError.toStringResource() =
+        when (this) {
+            TaskError.InvalidTask -> R.string.error_invalid_title
+            TaskError.NetworkUnavailable -> R.string.error_network
+            TaskError.Timeout -> R.string.error_timeout
+            TaskError.ProjectNotFound -> R.string.error_project_not_found
+            is TaskError.ServerError -> R.string.error_server
+            TaskError.Database -> R.string.error_database
+            else -> R.string.error_unknown
+        }
 }

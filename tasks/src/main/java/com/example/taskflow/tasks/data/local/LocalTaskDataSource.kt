@@ -29,6 +29,7 @@ import com.example.taskflow.core.database.task.TaskEntity
 import com.example.taskflow.tasks.domain.TaskError
 import com.example.taskflow.tasks.domain.TaskException
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import javax.inject.Inject
 
 internal class LocalTaskDataSource
@@ -40,9 +41,12 @@ internal class LocalTaskDataSource
 
     fun observeTasks(projectId: Long): Flow<List<TaskEntity>> {
         try {
-            return taskDao.observeTasks(projectId)
-        } catch (e: SQLiteException) {
+            //return taskDao.observeTasks(projectId)
+            throw SQLiteException("Test")
+        } catch (e: Exception) {
+            //Log.d("LocalTaskDataSource", "Error observing tasks: ${e.message}")
             throw mapException(e)
+            //return flowOf(emptyList())
         }
     }
 
