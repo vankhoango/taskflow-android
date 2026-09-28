@@ -19,6 +19,16 @@
   -->
 
 <resources>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="add_project">Add Project</string>
+    <string name="edit_project">Edit Project</string>
+    <string name="name">Name</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete_project_confirm">Delete Project?</string>
+    <string name="delete_project_confirm_details">This will also delete the project\'s tasks.</string>
+
     <string name="error_saving">Couldn\'t save project</string>
     <string name="error_invalid_name">Invalid project name</string>
     <string name="error_network">Network Unavailable</string>

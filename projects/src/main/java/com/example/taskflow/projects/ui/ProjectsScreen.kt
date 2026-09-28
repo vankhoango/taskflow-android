@@ -43,7 +43,18 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.taskflow.core.network.R
+import com.example.taskflow.projects.R.string.add_project
+import com.example.taskflow.projects.R.string.cancel
+import com.example.taskflow.projects.R.string.delete
+import com.example.taskflow.projects.R.string.delete_project_confirm
+import com.example.taskflow.projects.R.string.delete_project_confirm_details
+import com.example.taskflow.projects.R.string.edit
+import com.example.taskflow.projects.R.string.edit_project
+import com.example.taskflow.projects.R.string.name
+import com.example.taskflow.projects.R.string.save
 import com.example.taskflow.projects.domain.Project
 
 @Composable
@@ -86,7 +97,7 @@ fun ProjectsScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.Edit,
-                        contentDescription = "Edit"
+                        contentDescription = stringResource(edit)
                     )
                 }
 
@@ -97,7 +108,7 @@ fun ProjectsScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.Delete,
-                        contentDescription = "Delete"
+                        contentDescription = stringResource(delete)
                     )
                 }
             }
@@ -121,9 +132,9 @@ fun ProjectsScreen(
             title = {
                 Text(
                     if (uiState.editingProjectId == null) {
-                        "Add Project"
+                        stringResource(add_project)
                     } else {
-                        "Edit Project"
+                        stringResource(edit_project)
                     }
                 )
             },
@@ -132,7 +143,7 @@ fun ProjectsScreen(
                     value = uiState.projectName,
                     onValueChange = onNameChange,
                     label = {
-                        Text("Name")
+                        Text(stringResource(name))
                     },
                     singleLine = true,
                 )
@@ -142,14 +153,14 @@ fun ProjectsScreen(
                     onClick = onSave,
                     enabled = uiState.projectName.isNotBlank(),
                 ) {
-                    Text("Save")
+                    Text(stringResource(save))
                 }
             },
             dismissButton = {
                 TextButton(
                     onClick = onCancelEditor,
                 ) {
-                    Text("Cancel")
+                    Text(stringResource(cancel))
                 }
             },
         )
@@ -160,25 +171,23 @@ fun ProjectsScreen(
         AlertDialog(
             onDismissRequest = onCancelDelete,
             title = {
-                Text("Delete Project?")
+                Text(stringResource(delete_project_confirm))
             },
             text = {
-                Text(
-                    "This will also delete the project's tasks."
-                )
+                Text(stringResource(delete_project_confirm_details))
             },
             confirmButton = {
                 TextButton(
                     onClick = onConfirmDelete,
                 ) {
-                    Text("Delete")
+                    Text(stringResource(delete))
                 }
             },
             dismissButton = {
                 TextButton(
                     onClick = onCancelDelete,
                 ) {
-                    Text("Cancel")
+                    Text(stringResource(cancel))
                 }
             },
         )
