@@ -22,25 +22,38 @@ package com.example.taskflow.projects.ui
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -54,135 +67,152 @@ import com.example.taskflow.projects.R.string.delete_project_confirm_details
 import com.example.taskflow.projects.R.string.edit
 import com.example.taskflow.projects.R.string.edit_project
 import com.example.taskflow.projects.R.string.name
+import com.example.taskflow.projects.R.string.projects
 import com.example.taskflow.projects.R.string.save
 import com.example.taskflow.projects.domain.Project
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProjectsScreen(
     uiState: ProjectUiState,
     onEvent: (ProjectUiEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(
-        modifier = modifier.padding(horizontal = 12.dp),
-    ) {
-
-        uiState.projects.forEach { project ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable {
-                        onEvent(ProjectUiEvent.ProjectDetailsClicked(project.id))
-                    }
-                    .padding(vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = project.name,
-                    modifier = Modifier.weight(1f),
-                )
-
-                IconButton(
-                    onClick = {
-                        onEvent(ProjectUiEvent.EditProjectClicked(project))
-                    },
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.Edit,
-                        contentDescription = stringResource(edit)
-                    )
+    Scaffold(
+        topBar = {
+            TopAppBar (
+                title = {
+                    Text(stringResource(projects),
+                        style = MaterialTheme.typography.titleLarge)
                 }
+            )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { onEvent (ProjectUiEvent.AddProjectClicked) },
+                shape = CircleShape,
+            ) {
+                Icon(Icons.Filled.Add, stringResource(add_project))
+            }
+        }
+    ) { innerPadding ->
+        LazyColumn (
+            modifier = modifier
+                .padding(innerPadding)
+                .padding(12.dp),
+            contentPadding = PaddingValues(
+                bottom = 56.dp,
+            ),
+        ) {
+            uiState.projects.forEach { project ->
+                item {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                onEvent(ProjectUiEvent.ProjectDetailsClicked(project.id))
+                            }
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = project.name,
+                            modifier = Modifier.weight(1f),
+                        )
 
-                IconButton(
-                    onClick = {
-                        onEvent(ProjectUiEvent.DeleteProjectClicked(project.id))
-                    },
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.Delete,
-                        contentDescription = stringResource(delete)
-                    )
+                        IconButton(
+                            onClick = {
+                                onEvent(ProjectUiEvent.EditProjectClicked(project))
+                            },
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Edit,
+                                contentDescription = stringResource(edit)
+                            )
+                        }
+
+                        IconButton(
+                            onClick = {
+                                onEvent(ProjectUiEvent.DeleteProjectClicked(project.id))
+                            },
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Delete,
+                                contentDescription = stringResource(delete)
+                            )
+                        }
+                    }
                 }
             }
         }
 
-        Spacer(
-            modifier = Modifier.height(16.dp),
-        )
-
-        Button(
-            onClick = {onEvent(ProjectUiEvent.AddProjectClicked)},
-        ) {
-            Text("Add Project")
-        }
-    }
-
-    //Add/Edit dialog
-    if (uiState.showEditor) {
-        AlertDialog(
-            onDismissRequest = {onEvent(ProjectUiEvent.CancelEditClicked)},
-            title = {
-                Text(
-                    if (uiState.editingProjectId == null) {
-                        stringResource(add_project)
-                    } else {
-                        stringResource(edit_project)
+        //Add/Edit dialog
+        if (uiState.showEditor) {
+            AlertDialog(
+                onDismissRequest = {onEvent(ProjectUiEvent.CancelEditClicked)},
+                title = {
+                    Text(
+                        if (uiState.editingProjectId == null) {
+                            stringResource(add_project)
+                        } else {
+                            stringResource(edit_project)
+                        }
+                    )
+                },
+                text = {
+                    OutlinedTextField(
+                        value = uiState.projectName,
+                        onValueChange = {onEvent(ProjectUiEvent.ProjectNameChanged(it))},
+                        label = {
+                            Text(stringResource(name))
+                        },
+                        singleLine = true,
+                    )
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {onEvent(ProjectUiEvent.SaveProjectClicked)},
+                        enabled = uiState.projectName.isNotBlank(),
+                    ) {
+                        Text(stringResource(save))
                     }
-                )
-            },
-            text = {
-                OutlinedTextField(
-                    value = uiState.projectName,
-                    onValueChange = {onEvent(ProjectUiEvent.ProjectNameChanged(it))},
-                    label = {
-                        Text(stringResource(name))
-                    },
-                    singleLine = true,
-                )
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {onEvent(ProjectUiEvent.SaveProjectClicked)},
-                    enabled = uiState.projectName.isNotBlank(),
-                ) {
-                    Text(stringResource(save))
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = {onEvent(ProjectUiEvent.CancelEditClicked)},
-                ) {
-                    Text(stringResource(cancel))
-                }
-            },
-        )
-    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = {onEvent(ProjectUiEvent.CancelEditClicked)},
+                    ) {
+                        Text(stringResource(cancel))
+                    }
+                },
+            )
+        }
 
-    //Delete dialog
-    if (uiState.deletingProjectId != null) {
-        AlertDialog(
-            onDismissRequest = {onEvent(ProjectUiEvent.CancelEditClicked)},
-            title = {
-                Text(stringResource(delete_project_confirm))
-            },
-            text = {
-                Text(stringResource(delete_project_confirm_details))
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {onEvent(ProjectUiEvent.ConfirmDeleteClicked)},
-                ) {
-                    Text(stringResource(delete))
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = {onEvent(ProjectUiEvent.CancelDeleteClicked)},
-                ) {
-                    Text(stringResource(cancel))
-                }
-            },
-        )
+        //Delete dialog
+        if (uiState.deletingProjectId != null) {
+            AlertDialog(
+                onDismissRequest = {onEvent(ProjectUiEvent.CancelEditClicked)},
+                title = {
+                    Text(stringResource(delete_project_confirm))
+                },
+                text = {
+                    Text(stringResource(delete_project_confirm_details))
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {onEvent(ProjectUiEvent.ConfirmDeleteClicked)},
+                    ) {
+                        Text(stringResource(delete))
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = {onEvent(ProjectUiEvent.CancelDeleteClicked)},
+                    ) {
+                        Text(stringResource(cancel))
+                    }
+                },
+            )
+        }
     }
 }
 

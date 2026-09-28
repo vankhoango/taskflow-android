@@ -38,21 +38,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 fun ProjectsRoute(
     onProjectDetailsClick: (Long) -> Unit
 ) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {Text("Projects", style = MaterialTheme.typography.titleLarge)}
-            )
-        }
-    ) { innerPadding ->
-        val viewModel: ProjectViewModel = hiltViewModel()
-        viewModel.onProjectDetailsClicked = onProjectDetailsClick
-        val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-        ProjectsScreen(
-            uiState = uiState,
-            onEvent = viewModel::onEvent,
-            modifier = Modifier.padding(innerPadding)
-        )
-    }
+    val viewModel: ProjectViewModel = hiltViewModel()
+    viewModel.onProjectDetailsClicked = onProjectDetailsClick
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    ProjectsScreen(
+        uiState = uiState,
+        onEvent = viewModel::onEvent
+    )
 }
