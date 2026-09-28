@@ -39,7 +39,7 @@ fun TaskFlowNavHost(navController: NavHostController) {
             route = TaskFlowDefinition.PROJECTS
         ) {
             ProjectsRoute(
-                onProjectClick = {
+                onProjectDetailsClick = {
                     navController.navigate(TaskFlowDefinition.tasks(it))
                 }
             )

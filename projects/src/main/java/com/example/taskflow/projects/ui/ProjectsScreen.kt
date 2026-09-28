@@ -60,15 +60,7 @@ import com.example.taskflow.projects.domain.Project
 @Composable
 fun ProjectsScreen(
     uiState: ProjectUiState,
-    onProjectClick: (Long) -> Unit,
-    onAddClick: () -> Unit,
-    onEditClick: (Project) -> Unit,
-    onDeleteClick: (Long) -> Unit,
-    onNameChange: (String) -> Unit,
-    onSave: () -> Unit,
-    onCancelEditor: () -> Unit,
-    onConfirmDelete: () -> Unit,
-    onCancelDelete: () -> Unit,
+    onEvent: (ProjectUiEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -80,7 +72,7 @@ fun ProjectsScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable {
-                        onProjectClick(project.id)
+                        onEvent(ProjectUiEvent.ProjectDetailsClicked(project.id))
                     }
                     .padding(vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -92,7 +84,7 @@ fun ProjectsScreen(
 
                 IconButton(
                     onClick = {
-                        onEditClick(project)
+                        onEvent(ProjectUiEvent.EditProjectClicked(project))
                     },
                 ) {
                     Icon(
@@ -103,7 +95,7 @@ fun ProjectsScreen(
 
                 IconButton(
                     onClick = {
-                        onDeleteClick(project.id)
+                        onEvent(ProjectUiEvent.DeleteProjectClicked(project.id))
                     },
                 ) {
                     Icon(
@@ -119,7 +111,7 @@ fun ProjectsScreen(
         )
 
         Button(
-            onClick = onAddClick,
+            onClick = {onEvent(ProjectUiEvent.AddProjectClicked)},
         ) {
             Text("Add Project")
         }
@@ -128,7 +120,7 @@ fun ProjectsScreen(
     //Add/Edit dialog
     if (uiState.showEditor) {
         AlertDialog(
-            onDismissRequest = onCancelEditor,
+            onDismissRequest = {onEvent(ProjectUiEvent.CancelEditClicked)},
             title = {
                 Text(
                     if (uiState.editingProjectId == null) {
@@ -141,7 +133,7 @@ fun ProjectsScreen(
             text = {
                 OutlinedTextField(
                     value = uiState.projectName,
-                    onValueChange = onNameChange,
+                    onValueChange = {onEvent(ProjectUiEvent.ProjectNameChanged(it))},
                     label = {
                         Text(stringResource(name))
                     },
@@ -150,7 +142,7 @@ fun ProjectsScreen(
             },
             confirmButton = {
                 TextButton(
-                    onClick = onSave,
+                    onClick = {onEvent(ProjectUiEvent.SaveProjectClicked)},
                     enabled = uiState.projectName.isNotBlank(),
                 ) {
                     Text(stringResource(save))
@@ -158,7 +150,7 @@ fun ProjectsScreen(
             },
             dismissButton = {
                 TextButton(
-                    onClick = onCancelEditor,
+                    onClick = {onEvent(ProjectUiEvent.CancelEditClicked)},
                 ) {
                     Text(stringResource(cancel))
                 }
@@ -169,7 +161,7 @@ fun ProjectsScreen(
     //Delete dialog
     if (uiState.deletingProjectId != null) {
         AlertDialog(
-            onDismissRequest = onCancelDelete,
+            onDismissRequest = {onEvent(ProjectUiEvent.CancelEditClicked)},
             title = {
                 Text(stringResource(delete_project_confirm))
             },
@@ -178,14 +170,14 @@ fun ProjectsScreen(
             },
             confirmButton = {
                 TextButton(
-                    onClick = onConfirmDelete,
+                    onClick = {onEvent(ProjectUiEvent.ConfirmDeleteClicked)},
                 ) {
                     Text(stringResource(delete))
                 }
             },
             dismissButton = {
                 TextButton(
-                    onClick = onCancelDelete,
+                    onClick = {onEvent(ProjectUiEvent.CancelDeleteClicked)},
                 ) {
                     Text(stringResource(cancel))
                 }

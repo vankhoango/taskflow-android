@@ -49,6 +49,8 @@ class ProjectViewModel @Inject constructor(
     private var _uiState = MutableStateFlow(ProjectUiState())
     val uiState: StateFlow<ProjectUiState> = _uiState.asStateFlow()
 
+    lateinit var onProjectDetailsClicked: (Long) -> Unit
+
     init {
         observeProjects()
 
@@ -74,7 +76,7 @@ class ProjectViewModel @Inject constructor(
         }
     }
 
-    fun startCreatingProject() {
+    private fun startCreatingProject() {
         _uiState.update {
             it.copy(
                 showEditor = true,
@@ -84,7 +86,7 @@ class ProjectViewModel @Inject constructor(
         }
     }
 
-    fun startEditingProject(
+    private fun startEditingProject(
         project: Project,
     ) {
         _uiState.update {
@@ -96,7 +98,7 @@ class ProjectViewModel @Inject constructor(
         }
     }
 
-    fun changeProjectName(
+    private fun changeProjectName(
         name: String,
     ) {
         _uiState.update {
@@ -106,7 +108,7 @@ class ProjectViewModel @Inject constructor(
         }
     }
 
-    fun cancelEditingProject() {
+    private fun cancelEditingProject() {
         _uiState.update {
             it.copy(
                 showEditor = false,
@@ -116,7 +118,7 @@ class ProjectViewModel @Inject constructor(
         }
     }
 
-    fun saveProject() {
+    private fun saveProject() {
         val name = uiState.value.projectName.trim()
 
         if (name.isEmpty()) {
@@ -144,7 +146,7 @@ class ProjectViewModel @Inject constructor(
         }
     }
 
-    fun requestDeleteProject(
+    private fun requestDeleteProject(
         projectId: Long,
     ) {
         _uiState.update {
@@ -154,7 +156,7 @@ class ProjectViewModel @Inject constructor(
         }
     }
 
-    fun cancelDeleteProject() {
+    private fun cancelDeleteProject() {
         _uiState.update {
             it.copy(
                 deletingProjectId = null,
@@ -162,17 +164,54 @@ class ProjectViewModel @Inject constructor(
         }
     }
 
-    fun confirmDeleteProject() {
+    private fun confirmDeleteProject() {
         val projectId =
             uiState.value.deletingProjectId ?: return
 
         viewModelScope.launch {
             try {
                 deleteProjectUseCase(projectId)
+                _uiState.update {
+                    it.copy(
+                        deletingProjectId = null,
+                    )
+                }
             } catch (e: Exception) {
                 // Error handling later.
             }
         }
     }
 
+    fun onEvent(event: ProjectUiEvent) {
+        when (event) {
+            ProjectUiEvent.AddProjectClicked -> {
+                startCreatingProject()
+            }
+            ProjectUiEvent.SaveProjectClicked -> {
+                saveProject()
+            }
+            is ProjectUiEvent.ProjectDetailsClicked -> {
+                onProjectDetailsClicked(event.projectId)
+            }
+            is ProjectUiEvent.EditProjectClicked -> {
+                startEditingProject(event.project)
+            }
+            is ProjectUiEvent.ProjectNameChanged -> {
+                changeProjectName(event.name)
+            }
+            ProjectUiEvent.CancelEditClicked -> {
+                cancelEditingProject()
+            }
+
+            is ProjectUiEvent.DeleteProjectClicked -> {
+                requestDeleteProject(event.projectId)
+            }
+            ProjectUiEvent.CancelDeleteClicked -> {
+                cancelDeleteProject()
+            }
+            ProjectUiEvent.ConfirmDeleteClicked -> {
+                confirmDeleteProject()
+            }
+        }
+    }
 }

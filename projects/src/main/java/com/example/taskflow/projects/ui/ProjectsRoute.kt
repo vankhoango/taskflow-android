@@ -36,7 +36,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProjectsRoute(
-    onProjectClick: (Long) -> Unit
+    onProjectDetailsClick: (Long) -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -46,19 +46,12 @@ fun ProjectsRoute(
         }
     ) { innerPadding ->
         val viewModel: ProjectViewModel = hiltViewModel()
+        viewModel.onProjectDetailsClicked = onProjectDetailsClick
         val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
         ProjectsScreen(
             uiState = uiState,
-            onProjectClick = onProjectClick,
-            onAddClick = viewModel::startCreatingProject,
-            onEditClick = viewModel::startEditingProject,
-            onDeleteClick = viewModel::requestDeleteProject,
-            onNameChange = viewModel::changeProjectName,
-            onSave = viewModel::saveProject,
-            onCancelEditor = viewModel::cancelEditingProject,
-            onConfirmDelete = viewModel::confirmDeleteProject,
-            onCancelDelete = viewModel::cancelDeleteProject,
+            onEvent = viewModel::onEvent,
             modifier = Modifier.padding(innerPadding)
         )
     }
