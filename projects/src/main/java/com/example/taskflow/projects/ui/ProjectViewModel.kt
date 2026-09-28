@@ -63,6 +63,39 @@ class ProjectViewModel @Inject constructor(
         }
     }
 
+    fun onEvent(event: ProjectUiEvent) {
+        when (event) {
+            ProjectUiEvent.AddProjectClicked -> {
+                startCreatingProject()
+            }
+            ProjectUiEvent.SaveProjectClicked -> {
+                saveProject()
+            }
+            is ProjectUiEvent.ProjectDetailsClicked -> {
+                onProjectDetailsClicked(event.projectId)
+            }
+            is ProjectUiEvent.EditProjectClicked -> {
+                startEditingProject(event.project)
+            }
+            is ProjectUiEvent.ProjectNameChanged -> {
+                changeProjectName(event.name)
+            }
+            ProjectUiEvent.CancelEditClicked -> {
+                cancelEditingProject()
+            }
+
+            is ProjectUiEvent.DeleteProjectClicked -> {
+                requestDeleteProject(event.projectId)
+            }
+            ProjectUiEvent.CancelDeleteClicked -> {
+                cancelDeleteProject()
+            }
+            ProjectUiEvent.ConfirmDeleteClicked -> {
+                confirmDeleteProject()
+            }
+        }
+    }
+
     private fun observeProjects() {
         viewModelScope.launch {
             observeProjectsUseCase().collect { projects ->
@@ -178,39 +211,6 @@ class ProjectViewModel @Inject constructor(
                 }
             } catch (e: Exception) {
                 // Error handling later.
-            }
-        }
-    }
-
-    fun onEvent(event: ProjectUiEvent) {
-        when (event) {
-            ProjectUiEvent.AddProjectClicked -> {
-                startCreatingProject()
-            }
-            ProjectUiEvent.SaveProjectClicked -> {
-                saveProject()
-            }
-            is ProjectUiEvent.ProjectDetailsClicked -> {
-                onProjectDetailsClicked(event.projectId)
-            }
-            is ProjectUiEvent.EditProjectClicked -> {
-                startEditingProject(event.project)
-            }
-            is ProjectUiEvent.ProjectNameChanged -> {
-                changeProjectName(event.name)
-            }
-            ProjectUiEvent.CancelEditClicked -> {
-                cancelEditingProject()
-            }
-
-            is ProjectUiEvent.DeleteProjectClicked -> {
-                requestDeleteProject(event.projectId)
-            }
-            ProjectUiEvent.CancelDeleteClicked -> {
-                cancelDeleteProject()
-            }
-            ProjectUiEvent.ConfirmDeleteClicked -> {
-                confirmDeleteProject()
             }
         }
     }
