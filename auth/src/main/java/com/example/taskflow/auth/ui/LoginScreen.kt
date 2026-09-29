@@ -3,11 +3,15 @@ package com.example.taskflow.auth.ui
 import android.graphics.drawable.Icon
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.Person
@@ -72,10 +76,14 @@ internal fun LoginScreen(
 
     Scaffold() { innerPadding ->
         Column(
-            modifier = Modifier.padding(innerPadding)
-                .fillMaxSize().padding(12.dp),
+            modifier = Modifier
+                .padding(innerPadding)
+                .consumeWindowInsets(innerPadding)
+                .fillMaxSize().padding(12.dp)
+                .imePadding()
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
                 text = stringResource(R.string.taskflow_login),
@@ -128,7 +136,7 @@ internal fun LoginScreen(
                             password.isNotEmpty() &&
                             !state.isSubmitting
 
-                    FilledTonalButton(
+                    Button(
                         modifier = Modifier.fillMaxWidth().height(48.dp),
                         enabled = canLogin,
                         onClick = {
