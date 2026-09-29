@@ -37,4 +37,16 @@ class RemoteAuthDataSource @Inject constructor(
             )
         )
     }
+
+    suspend fun login(
+        username: String,
+        password: String,
+    ): LoginResponse {
+        return authApi.login(
+            LoginRequest(
+                username = username,
+                password = password,
+            )
+        )
+    }
 }

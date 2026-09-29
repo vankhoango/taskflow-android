@@ -26,19 +26,29 @@ android {
 
 dependencies {
     implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.ktx)
+
+    //material3
+    implementation(libs.androidx.material3)
+    implementation(libs.androidx.appcompat)
     implementation(libs.material)
+
+    //icon
+    implementation(libs.androidx.compose.material.icons)
+    implementation(libs.androidx.compose.material.icons.extended)
 
     implementation(project(":core:network"))
 
+    //hilt
     implementation(libs.dagger.hilt)
     ksp(libs.dagger.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
 
+    //retrofit
     implementation(libs.retrofit)
     implementation(libs.kotlinx.serialization.json)
 
+    //test
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)

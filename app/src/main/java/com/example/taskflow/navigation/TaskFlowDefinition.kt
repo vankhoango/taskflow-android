@@ -21,10 +21,11 @@
 package com.example.taskflow.navigation
 
 object TaskFlowDefinition {
+    const val LOGIN = "login"
+    const val SIGN_UP = "sign_up"
     const val PROJECTS = "projects"
     const val PROJECT_ID = "projectId"
     const val TASKS = "projects/{$PROJECT_ID}/tasks"
-
     fun tasks(projectId: Long): String {
         return "projects/$projectId/tasks"
     }

@@ -21,7 +21,6 @@
 package com.example.taskflow.auth.ui
 
 sealed interface SignUpUiEvent {
-
     data class SignUpClicked(
         val username: String,
         val password: String,

@@ -20,12 +20,15 @@
 
 package com.example.taskflow.navigation
 
+import SignUpRoute
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.taskflow.auth.ui.LoginRoute
+import com.example.taskflow.navigation.TaskFlowDefinition.SIGN_UP
 import com.example.taskflow.projects.ui.ProjectsRoute
 import com.example.taskflow.tasks.ui.TaskRoute
 
@@ -33,8 +36,31 @@ import com.example.taskflow.tasks.ui.TaskRoute
 fun TaskFlowNavHost(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = TaskFlowDefinition.PROJECTS
+        startDestination = TaskFlowDefinition.LOGIN
     ) {
+        composable (
+            route = TaskFlowDefinition.LOGIN
+        ) {
+            LoginRoute(
+                onLoginSucceeded = { session ->
+                    // Temporary checkpoint behavior.
+                },
+                onSignUpClicked = {
+                    navController.navigate(SIGN_UP)
+                },
+            )
+        }
+
+        composable (
+            route = TaskFlowDefinition.SIGN_UP
+        ) {
+            SignUpRoute(
+                onRegistrationSucceeded = {
+                    navController.popBackStack()
+                },
+            )
+        }
+
         composable (
             route = TaskFlowDefinition.PROJECTS
         ) {

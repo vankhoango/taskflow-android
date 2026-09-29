@@ -112,7 +112,7 @@ internal fun TaskScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text("Tasks", style = MaterialTheme.typography.titleLarge)
+                    Text(stringResource(R.string.tasks), style = MaterialTheme.typography.titleLarge)
                 },
                 navigationIcon = {
                     IconButton(onClick = {
@@ -120,7 +120,7 @@ internal fun TaskScreen(
                     }) {
                         Icon(
                             Icons.AutoMirrored.Default.ArrowBack,
-                            contentDescription = "Back",
+                            contentDescription = stringResource(R.string.back),
                         )
                     }
                 },
@@ -138,7 +138,7 @@ internal fun TaskScreen(
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = "New Task"
+                    contentDescription = stringResource(R.string.new_task)
                 )
             }
         },
@@ -229,7 +229,7 @@ internal fun TaskEditor(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Close,
-                                contentDescription = "Delete"
+                                contentDescription = stringResource(R.string.delete)
                             )
                             Text(
                                 text = stringResource(R.string.cancel),
@@ -254,7 +254,7 @@ internal fun TaskEditor(
                             } else {
                                 Icon(
                                     imageVector = Icons.Default.Check,
-                                    contentDescription = "Add"
+                                    contentDescription = stringResource(R.string.add)
                                 )
                             }
                             Text(

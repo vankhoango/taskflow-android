@@ -26,4 +26,9 @@ interface AuthRepository {
         username: String,
         password: String,
     ): User
+
+    suspend fun login(
+        username: String,
+        password: String,
+    ): AuthSession
 }

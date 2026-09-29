@@ -22,6 +22,7 @@ package com.example.taskflow.auth.data
 
 import com.example.taskflow.auth.data.remote.RemoteAuthDataSource
 import com.example.taskflow.auth.domain.AuthRepository
+import com.example.taskflow.auth.domain.AuthSession
 import com.example.taskflow.auth.domain.User
 import javax.inject.Inject
 
@@ -41,4 +42,15 @@ class AuthRepositoryImpl
         )
     }
 
+    override suspend fun login(
+        username: String,
+        password: String,
+    ): AuthSession {
+        val response = remoteAuthDataSource.login(username, password)
+        return AuthSession(
+            accessToken = response.accessToken,
+            tokenType = response.tokenType,
+            expiresInSeconds = response.expiresIn,
+        )
+    }
 }

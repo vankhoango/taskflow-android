@@ -19,11 +19,15 @@
   -->
 
 <resources>
+    <string name="tasks">Tasks</string>
+    <string name="back">Back</string>
+    <string name="delete">Delete</string>
     <string name="new_task">New task</string>
     <string name="edit_task">Edit task</string>
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>
     <string name="task">Task</string>
+    <string name="add">Add</string>
     <string name="error_saving_task">Couldn\'t save task</string>
     <string name="error_invalid_title">Invalid task title: must be 3 to 100 characters long.</string>
     <string name="error_network">Network Unavailable</string>
