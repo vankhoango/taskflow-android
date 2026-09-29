@@ -46,5 +46,6 @@ rootProject.name = "TaskFlow"
 include(":app")
 include(":projects")
 include(":tasks")
+include(":auth")
 include(":core:network")
 include(":core:database")
