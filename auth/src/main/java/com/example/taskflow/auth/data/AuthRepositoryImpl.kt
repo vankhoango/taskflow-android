@@ -66,6 +66,7 @@ class AuthRepositoryImpl @Inject constructor(
         val session = AuthSession(
             accessToken = response.accessToken,
             tokenType = response.tokenType,
+            refreshToken = response.refreshToken,
             expiresAtEpochSeconds =
                 nowEpochSeconds + response.expiresIn,
         )

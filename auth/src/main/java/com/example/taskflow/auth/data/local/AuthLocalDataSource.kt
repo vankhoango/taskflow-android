@@ -45,6 +45,9 @@ class AuthLocalDataSource @Inject constructor(
 
         val EXPIRES_AT =
             longPreferencesKey("expires_at")
+
+        private val REFRESH_TOKEN =
+            stringPreferencesKey("refresh_token")
     }
 
     suspend fun saveSession(
@@ -53,6 +56,10 @@ class AuthLocalDataSource @Inject constructor(
         context.authDataStore.edit { preferences ->
             preferences[ACCESS_TOKEN] =
                 session.accessToken
+
+            preferences[REFRESH_TOKEN] =
+                session.refreshToken
+
 
             preferences[TOKEN_TYPE] =
                 session.tokenType
@@ -68,6 +75,9 @@ class AuthLocalDataSource @Inject constructor(
                 val accessToken =
                     preferences[ACCESS_TOKEN]
 
+                val refreshToken =
+                    preferences[REFRESH_TOKEN]
+
                 val tokenType =
                     preferences[TOKEN_TYPE]
 
@@ -77,6 +87,7 @@ class AuthLocalDataSource @Inject constructor(
                 if (
                     accessToken == null ||
                     tokenType == null ||
+                    refreshToken == null ||
                     expiresAt == null
                 ) {
                     null
@@ -85,6 +96,7 @@ class AuthLocalDataSource @Inject constructor(
                         accessToken = accessToken,
                         tokenType = tokenType,
                         expiresAtEpochSeconds = expiresAt,
+                        refreshToken = refreshToken,
                     )
                 }
             }
@@ -92,6 +104,7 @@ class AuthLocalDataSource @Inject constructor(
     suspend fun clearSession() {
         context.authDataStore.edit { preferences ->
             preferences.remove(ACCESS_TOKEN)
+            preferences.remove(REFRESH_TOKEN)
             preferences.remove(TOKEN_TYPE)
             preferences.remove(EXPIRES_AT)
         }

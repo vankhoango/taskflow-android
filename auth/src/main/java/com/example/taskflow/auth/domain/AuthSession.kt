@@ -23,4 +23,5 @@ data class AuthSession(
     val accessToken: String,
     val tokenType: String,
     val expiresAtEpochSeconds: Long,
-)
+    val refreshToken: String,
+    )
