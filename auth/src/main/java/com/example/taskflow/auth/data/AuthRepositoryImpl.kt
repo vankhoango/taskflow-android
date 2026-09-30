@@ -35,6 +35,11 @@ class AuthRepositoryImpl @Inject constructor(
     private val remoteAuthDataSource: RemoteAuthDataSource,
     private val sessionManager: SessionManager,
     ) : AuthRepository {
+
+    override fun observeAuthState(): Flow<AuthState> {
+        return sessionManager.authState
+    }
+
     override suspend fun register(
         username: String,
         password: String

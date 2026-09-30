@@ -27,6 +27,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.taskflow.auth.ui.AuthGateRoute
 import com.example.taskflow.auth.ui.LoginRoute
 import com.example.taskflow.navigation.TaskFlowDestination.SIGN_UP
 import com.example.taskflow.projects.ui.ProjectsRoute
@@ -36,8 +37,38 @@ import com.example.taskflow.tasks.ui.TaskRoute
 fun TaskFlowNavHost(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = TaskFlowDestination.LOGIN
+        startDestination = TaskFlowDestination.AUTH_GATE
     ) {
+
+        composable(
+            route = TaskFlowDestination.AUTH_GATE,
+        ) {
+            AuthGateRoute (
+                onAuthenticated = {
+                    navController.navigate(
+                        TaskFlowDestination.PROJECTS
+                    ) {
+                        popUpTo(
+                            TaskFlowDestination.AUTH_GATE
+                        ) {
+                            inclusive = true
+                        }
+                    }
+                },
+                onUnauthenticated = {
+                    navController.navigate(
+                        TaskFlowDestination.LOGIN
+                    ) {
+                        popUpTo(
+                            TaskFlowDestination.AUTH_GATE
+                        ) {
+                            inclusive = true
+                        }
+                    }
+                },
+            )
+        }
+
         composable (
             route = TaskFlowDestination.LOGIN
         ) {

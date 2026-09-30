@@ -25,6 +25,8 @@ import kotlinx.coroutines.flow.StateFlow
 
 interface AuthRepository {
 
+    fun observeAuthState(): Flow<AuthState>
+
     suspend fun register(
         username: String,
         password: String,

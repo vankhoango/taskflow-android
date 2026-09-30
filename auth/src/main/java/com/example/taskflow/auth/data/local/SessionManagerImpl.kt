@@ -51,10 +51,18 @@ class SessionManagerImpl @Inject constructor(
         applicationScope.launch {
             authLocalDataSource.session.collect { session ->
                 _authState.value =
-                    if (session == null) {
-                        AuthState.Unauthenticated
-                    } else {
-                        AuthState.Authenticated(session)
+                    when {
+                        session == null -> {
+                            AuthState.Unauthenticated
+                        }
+
+                        session.isExpired() -> {
+                            AuthState.Unauthenticated
+                        }
+
+                        else -> {
+                            AuthState.Authenticated(session)
+                        }
                     }
             }
         }
@@ -63,20 +71,11 @@ class SessionManagerImpl @Inject constructor(
     override fun getAccessToken(): String? {
         val state = _authState.value
 
-        if (state !is AuthState.Authenticated) {
-            return null
+        return if (state is AuthState.Authenticated) {
+            state.session.accessToken
+        } else {
+            null
         }
-
-        val session = state.session
-
-        val nowEpochSeconds =
-            System.currentTimeMillis() / 1000
-
-        if (session.expiresAtEpochSeconds <= nowEpochSeconds) {
-            return null
-        }
-
-        return session.accessToken
     }
 
     override suspend fun saveSession(
@@ -87,5 +86,12 @@ class SessionManagerImpl @Inject constructor(
 
     override suspend fun clearSession() {
         authLocalDataSource.clearSession()
+    }
+
+    private fun AuthSession.isExpired(): Boolean {
+        val nowEpochSeconds =
+            System.currentTimeMillis() / 1000
+
+        return expiresAtEpochSeconds <= nowEpochSeconds
     }
 }
