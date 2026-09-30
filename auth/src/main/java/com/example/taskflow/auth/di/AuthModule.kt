@@ -26,6 +26,7 @@ import com.example.taskflow.auth.data.local.SessionManagerImpl
 import com.example.taskflow.auth.data.remote.AuthApi
 import com.example.taskflow.auth.domain.AuthRepository
 import com.example.taskflow.core.network.auth.AccessTokenProvider
+import com.example.taskflow.core.network.auth.AuthenticationFailureHandler
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -55,6 +56,12 @@ abstract class AuthModule {
     abstract fun bindAccessTokenProvider(
         implementation: SessionManagerImpl,
     ): AccessTokenProvider
+
+    @Binds
+    @Singleton
+    abstract fun bindAuthenticationFailureHandler(
+        implementation: SessionManagerImpl,
+    ): AuthenticationFailureHandler
 
     companion object {
 

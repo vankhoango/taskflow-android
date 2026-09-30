@@ -20,6 +20,7 @@
 
 package com.example.taskflow.core.network
 
+import com.example.taskflow.core.network.auth.AuthenticationFailureInterceptor
 import com.example.taskflow.core.network.auth.AuthenticationInterceptor
 import com.example.taskflow.core.network.interceptor.AppHeaderInterceptor
 import dagger.Module
@@ -66,26 +67,16 @@ object NetworkModule {
     fun provideOkHttpClient(
         appHeaderInterceptor: AppHeaderInterceptor,
         authenticationInterceptor: AuthenticationInterceptor,
+        authenticationFailureInterceptor: AuthenticationFailureInterceptor,
         httpLoggingInterceptor: HttpLoggingInterceptor,
     ): OkHttpClient {
         return OkHttpClient.Builder()
-            .connectTimeout(
-                10,
-                TimeUnit.SECONDS,
-            )
-            .readTimeout(
-                30,
-                TimeUnit.SECONDS,
-            )
-            .addInterceptor(
-                appHeaderInterceptor
-            )
-            .addInterceptor(
-                authenticationInterceptor
-            )
-            .addInterceptor(
-                httpLoggingInterceptor
-            )
+            .connectTimeout(10, TimeUnit.SECONDS,)
+            .readTimeout(30, TimeUnit.SECONDS,)
+            .addInterceptor(appHeaderInterceptor)
+            .addInterceptor(authenticationInterceptor)
+            .addInterceptor(authenticationFailureInterceptor)
+            .addInterceptor(httpLoggingInterceptor)
             .build()
     }
 

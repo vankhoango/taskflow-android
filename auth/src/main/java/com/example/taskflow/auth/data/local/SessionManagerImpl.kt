@@ -24,6 +24,7 @@ import com.example.taskflow.auth.domain.AuthSession
 import com.example.taskflow.auth.domain.AuthState
 import com.example.taskflow.core.common.coroutines.ApplicationScope
 import com.example.taskflow.core.network.auth.AccessTokenProvider
+import com.example.taskflow.core.network.auth.AuthenticationFailureHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -37,7 +38,7 @@ class SessionManagerImpl @Inject constructor(
     private val authLocalDataSource: AuthLocalDataSource,
     @ApplicationScope
     private val applicationScope: CoroutineScope,
-) : SessionManager {
+) : SessionManager, AuthenticationFailureHandler {
 
     private val _authState =
         MutableStateFlow<AuthState>(
@@ -93,5 +94,14 @@ class SessionManagerImpl @Inject constructor(
             System.currentTimeMillis() / 1000
 
         return expiresAtEpochSeconds <= nowEpochSeconds
+    }
+
+    override fun onAuthenticationFailed() {
+        _authState.value =
+            AuthState.Unauthenticated
+
+        applicationScope.launch {
+            authLocalDataSource.clearSession()
+        }
     }
 }
