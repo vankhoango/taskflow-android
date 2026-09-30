@@ -23,8 +23,11 @@ package com.example.taskflow.auth.data
 import com.example.taskflow.auth.data.local.SessionManager
 import com.example.taskflow.auth.domain.AuthRepository
 import com.example.taskflow.auth.domain.AuthState
+import com.example.taskflow.core.network.auth.AuthenticationFailureHandler
 import com.example.taskflow.core.network.auth.TokenRefresher
 import kotlinx.coroutines.runBlocking
+import retrofit2.HttpException
+import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -32,26 +35,42 @@ import javax.inject.Singleton
 class TokenRefresherImpl @Inject constructor(
     private val authRepository: AuthRepository,
     private val sessionManager: SessionManager,
+    private val authenticationFailureHandler:
+    AuthenticationFailureHandler,
 ) : TokenRefresher {
 
     override fun refreshToken(): String? =
         runBlocking {
-            val refreshed =
-                authRepository.refreshSession()
+            try {
+                val refreshed =
+                    authRepository.refreshSession()
 
-            if (!refreshed) {
-                return@runBlocking null
+                if (!refreshed) {
+                    return@runBlocking null
+                }
+
+                val state =
+                    sessionManager.authState.value
+
+                if (
+                    state !is AuthState.Authenticated
+                ) {
+                    return@runBlocking null
+                }
+
+                state.session.accessToken
+            } catch (exception: HttpException) {
+                if (exception.code() == 401) {
+                    authenticationFailureHandler
+                        .onAuthenticationFailed()
+                }
+
+                null
+            } catch (exception: IOException) {
+                // Network problem.
+                //
+                // Do NOT log the user out.
+                null
             }
-
-            val state =
-                sessionManager.authState.value
-
-            if (
-                state !is AuthState.Authenticated
-            ) {
-                return@runBlocking null
-            }
-
-            state.session.accessToken
         }
 }
