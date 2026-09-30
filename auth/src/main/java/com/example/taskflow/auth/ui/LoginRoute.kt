@@ -30,7 +30,7 @@ import com.example.taskflow.auth.domain.AuthSession
 
 @Composable
 fun LoginRoute(
-    onLoginSucceeded: (AuthSession) -> Unit,
+    onLoginSucceeded: () -> Unit,
     onSignUpClicked: () -> Unit,
     viewModel: LoginViewModel = hiltViewModel (),
 ) {
@@ -41,9 +41,7 @@ fun LoginRoute(
         viewModel.effects.collect { effect ->
             when (effect) {
                 is LoginUiEffect.LoginSucceeded -> {
-                    onLoginSucceeded(
-                        effect.session
-                    )
+                    onLoginSucceeded()
                 }
 
             }

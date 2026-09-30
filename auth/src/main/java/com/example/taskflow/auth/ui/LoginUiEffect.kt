@@ -24,8 +24,6 @@ import com.example.taskflow.auth.domain.AuthSession
 
 sealed interface LoginUiEffect {
 
-    data class LoginSucceeded(
-        val session: AuthSession,
-    ) : LoginUiEffect
+    data object LoginSucceeded: LoginUiEffect
 
 }

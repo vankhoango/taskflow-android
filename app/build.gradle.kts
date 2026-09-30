@@ -58,6 +58,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:common"))
     implementation(project(":auth"))
     implementation(project(":projects"))
     implementation(project(":tasks"))

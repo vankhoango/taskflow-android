@@ -18,18 +18,10 @@
  * limitations under the License.
  */
 
-package com.example.taskflow.auth.di
+package com.example.taskflow.core.common.coroutines
 
-import com.example.taskflow.auth.data.AuthRepositoryImpl
-import com.example.taskflow.auth.domain.AuthRepository
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
+import javax.inject.Qualifier
 
-@Module
-@InstallIn(SingletonComponent::class)
-abstract class AuthRepositoryModule {
-    @Binds
-    abstract fun bindAuthRepository(implementation: AuthRepositoryImpl): AuthRepository
-}
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class ApplicationScope

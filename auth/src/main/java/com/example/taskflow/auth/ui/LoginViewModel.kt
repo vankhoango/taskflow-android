@@ -79,9 +79,7 @@ class LoginViewModel @Inject constructor(
                 )
 
                 _effects.emit(
-                    LoginUiEffect.LoginSucceeded(
-                        session = session,
-                    )
+                    LoginUiEffect.LoginSucceeded
                 )
             } catch (e: AuthException) {
                 _uiState.update {

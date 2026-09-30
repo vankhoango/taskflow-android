@@ -43,9 +43,11 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "TaskFlow"
-include(":app")
-include(":projects")
-include(":tasks")
-include(":auth")
-include(":core:network")
+
+include(":core:common")
 include(":core:database")
+include(":core:network")
+include(":auth")
+include(":tasks")
+include(":projects")
+include(":app")

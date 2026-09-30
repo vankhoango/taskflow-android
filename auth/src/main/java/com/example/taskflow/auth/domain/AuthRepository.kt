@@ -20,6 +20,9 @@
 
 package com.example.taskflow.auth.domain
 
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
+
 interface AuthRepository {
 
     suspend fun register(
@@ -31,4 +34,8 @@ interface AuthRepository {
         username: String,
         password: String,
     ): AuthSession
+
+    fun observeSession(): StateFlow<AuthState>
+
+    suspend fun logout()
 }

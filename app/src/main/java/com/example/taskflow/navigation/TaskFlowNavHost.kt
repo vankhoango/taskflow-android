@@ -42,9 +42,7 @@ fun TaskFlowNavHost(navController: NavHostController) {
             route = TaskFlowDefinition.LOGIN
         ) {
             LoginRoute(
-                onLoginSucceeded = { session ->
-                    // Temporary checkpoint behavior.
-                },
+                onLoginSucceeded = {},
                 onSignUpClicked = {
                     navController.navigate(SIGN_UP)
                 },

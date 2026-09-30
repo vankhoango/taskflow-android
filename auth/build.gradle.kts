@@ -44,6 +44,7 @@ dependencies {
     implementation(libs.androidx.compose.material.icons.extended)
 
     implementation(project(":core:network"))
+    implementation(project(":core:common"))
 
     //hilt
     implementation(libs.dagger.hilt)
@@ -53,6 +54,9 @@ dependencies {
     //retrofit
     implementation(libs.retrofit)
     implementation(libs.kotlinx.serialization.json)
+
+    //preferences
+    implementation(libs.androidx.datastore.preferences)
 
     //test
     testImplementation(libs.junit)

@@ -19,9 +19,8 @@
  */
 
 package com.example.taskflow.auth.domain
-
 data class AuthSession(
     val accessToken: String,
     val tokenType: String,
-    val expiresInSeconds: Long,
+    val expiresAtEpochSeconds: Long,
 )

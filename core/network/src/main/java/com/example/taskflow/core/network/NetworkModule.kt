@@ -20,6 +20,7 @@
 
 package com.example.taskflow.core.network
 
+import com.example.taskflow.core.network.auth.AuthenticationInterceptor
 import com.example.taskflow.core.network.interceptor.AppHeaderInterceptor
 import dagger.Module
 import dagger.Provides
@@ -37,47 +38,9 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
-    private const val  BASE_URL =
+
+    private const val BASE_URL =
         "http://192.168.1.50:8080/"
-
-    private val json = Json {
-        ignoreUnknownKeys = true
-    }
-
-    @Provides
-    @Singleton
-    fun provideHttpLoggingIntercepter():HttpLoggingInterceptor {
-        return HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY
-        }
-    }
-
-    @Provides
-    @Singleton
-    fun provideHttpClient(
-        httpLoggingIntercept: HttpLoggingInterceptor,
-        appHeaderInterceptor: AppHeaderInterceptor): OkHttpClient {
-        return OkHttpClient.Builder()
-            .connectTimeout(10, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
-            .addInterceptor (appHeaderInterceptor)
-            .addInterceptor (httpLoggingIntercept)
-            .build()
-    }
-
-    @Provides
-    @Singleton
-    fun provideRetrofit(httpClient: OkHttpClient): Retrofit {
-        return Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(
-                json.asConverterFactory(
-                    "application/json".toMediaType()
-                )
-            )
-            .client(httpClient)
-            .build()
-    }
 
     @Provides
     @Singleton
@@ -85,5 +48,61 @@ object NetworkModule {
         return Json {
             ignoreUnknownKeys = true
         }
+    }
+
+    @Provides
+    @Singleton
+    fun provideHttpLoggingInterceptor(): HttpLoggingInterceptor {
+        return HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+
+            // Do not expose the JWT in Logcat.
+            redactHeader("Authorization")
+        }
+    }
+
+    @Provides
+    @Singleton
+    fun provideOkHttpClient(
+        appHeaderInterceptor: AppHeaderInterceptor,
+        authenticationInterceptor: AuthenticationInterceptor,
+        httpLoggingInterceptor: HttpLoggingInterceptor,
+    ): OkHttpClient {
+        return OkHttpClient.Builder()
+            .connectTimeout(
+                10,
+                TimeUnit.SECONDS,
+            )
+            .readTimeout(
+                30,
+                TimeUnit.SECONDS,
+            )
+            .addInterceptor(
+                appHeaderInterceptor
+            )
+            .addInterceptor(
+                authenticationInterceptor
+            )
+            .addInterceptor(
+                httpLoggingInterceptor
+            )
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideRetrofit(
+        okHttpClient: OkHttpClient,
+        json: Json,
+    ): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(
+                json.asConverterFactory(
+                    "application/json".toMediaType()
+                )
+            )
+            .build()
     }
 }

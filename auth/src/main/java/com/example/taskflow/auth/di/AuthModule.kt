@@ -20,7 +20,13 @@
 
 package com.example.taskflow.auth.di
 
+import com.example.taskflow.auth.data.AuthRepositoryImpl
+import com.example.taskflow.auth.data.local.SessionManager
+import com.example.taskflow.auth.data.local.SessionManagerImpl
 import com.example.taskflow.auth.data.remote.AuthApi
+import com.example.taskflow.auth.domain.AuthRepository
+import com.example.taskflow.core.network.auth.AccessTokenProvider
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -30,12 +36,34 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object AuthModule {
+abstract class AuthModule {
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideAuthApi(retrofit: Retrofit): AuthApi {
-        return retrofit.create(AuthApi::class.java)
-    }
+    abstract fun bindAuthRepository(
+        implementation: AuthRepositoryImpl,
+    ): AuthRepository
 
+    @Binds
+    @Singleton
+    abstract fun bindSessionManager(
+        implementation: SessionManagerImpl,
+    ): SessionManager
+
+    @Binds
+    @Singleton
+    abstract fun bindAccessTokenProvider(
+        implementation: SessionManagerImpl,
+    ): AccessTokenProvider
+
+    companion object {
+
+        @Provides
+        @Singleton
+        fun provideAuthApi(
+            retrofit: Retrofit,
+        ): AuthApi {
+            return retrofit.create(AuthApi::class.java)
+        }
+    }
 }
