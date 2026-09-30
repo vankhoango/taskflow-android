@@ -28,7 +28,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.taskflow.auth.ui.LoginRoute
-import com.example.taskflow.navigation.TaskFlowDefinition.SIGN_UP
+import com.example.taskflow.navigation.TaskFlowDestination.SIGN_UP
 import com.example.taskflow.projects.ui.ProjectsRoute
 import com.example.taskflow.tasks.ui.TaskRoute
 
@@ -36,13 +36,23 @@ import com.example.taskflow.tasks.ui.TaskRoute
 fun TaskFlowNavHost(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = TaskFlowDefinition.LOGIN
+        startDestination = TaskFlowDestination.LOGIN
     ) {
         composable (
-            route = TaskFlowDefinition.LOGIN
+            route = TaskFlowDestination.LOGIN
         ) {
             LoginRoute(
-                onLoginSucceeded = {},
+                onLoginSucceeded = {
+                    navController.navigate(
+                        TaskFlowDestination.PROJECTS
+                    ) {
+                        popUpTo(
+                            TaskFlowDestination.LOGIN
+                        ) {
+                            inclusive = true
+                        }
+                    }
+                },
                 onSignUpClicked = {
                     navController.navigate(SIGN_UP)
                 },
@@ -50,7 +60,7 @@ fun TaskFlowNavHost(navController: NavHostController) {
         }
 
         composable (
-            route = TaskFlowDefinition.SIGN_UP
+            route = TaskFlowDestination.SIGN_UP
         ) {
             SignUpRoute(
                 onRegistrationSucceeded = {
@@ -63,19 +73,19 @@ fun TaskFlowNavHost(navController: NavHostController) {
         }
 
         composable (
-            route = TaskFlowDefinition.PROJECTS
+            route = TaskFlowDestination.PROJECTS
         ) {
             ProjectsRoute(
                 onProjectDetailsClick = {
-                    navController.navigate(TaskFlowDefinition.tasks(it))
+                    navController.navigate(TaskFlowDestination.tasks(it))
                 }
             )
         }
 
         composable(
-            route = TaskFlowDefinition.TASKS,
+            route = TaskFlowDestination.TASKS,
             arguments = listOf(
-                navArgument(TaskFlowDefinition.PROJECT_ID) {
+                navArgument(TaskFlowDestination.PROJECT_ID) {
                     type = NavType.LongType
                 }
             )

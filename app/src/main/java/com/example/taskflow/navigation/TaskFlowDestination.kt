@@ -20,7 +20,7 @@
 
 package com.example.taskflow.navigation
 
-object TaskFlowDefinition {
+object TaskFlowDestination {
     const val LOGIN = "login"
     const val SIGN_UP = "sign_up"
     const val PROJECTS = "projects"
