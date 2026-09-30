@@ -20,33 +20,124 @@
 
 package com.example.taskflow.auth.data.remote
 
+import com.example.taskflow.auth.domain.AuthError
+import com.example.taskflow.auth.domain.AuthException
+import kotlinx.serialization.json.Json
+import retrofit2.HttpException
+import java.io.IOException
+import java.net.SocketTimeoutException
 import javax.inject.Inject
 
 class RemoteAuthDataSource @Inject constructor(
     private val authApi: AuthApi,
-) {
+    private val json: Json,
+    ) {
 
     suspend fun register(
         username: String,
         password: String,
     ): UserResponse {
-        return authApi.register(
-            RegisterRequest(
-                username = username,
-                password = password,
+        try {
+            return authApi.register(
+                RegisterRequest(
+                    username = username,
+                    password = password,
+                )
             )
-        )
+        } catch (e: Exception) {
+            throw mapException(e)
+        }
     }
 
     suspend fun login(
         username: String,
         password: String,
     ): LoginResponse {
-        return authApi.login(
-            LoginRequest(
-                username = username,
-                password = password,
+        try {
+            return authApi.login(
+                LoginRequest(
+                    username = username,
+                    password = password,
+                )
             )
+        } catch (e: Exception) {
+            throw mapException(e)
+        }
+    }
+
+    private fun mapException(
+        exception: Exception,
+    ): AuthException {
+        return when (exception) {
+            is SocketTimeoutException -> {
+                AuthException(
+                    error = AuthError.Timeout,
+                    cause = exception,
+                )
+            }
+
+            is HttpException -> {
+                mapHttpException(exception)
+            }
+
+            is IOException -> {
+                AuthException(
+                    error = AuthError.Network,
+                    cause = exception,
+                )
+            }
+
+            else -> {
+                AuthException(
+                    error = AuthError.Unknown(
+                        message = exception.message,
+                    ),
+                    cause = exception,
+                )
+            }
+        }
+    }
+
+    private fun mapHttpException(
+        exception: HttpException,
+    ): AuthException {
+        val apiError = try {
+            exception.response()
+                ?.errorBody()
+                ?.string()
+                ?.let { body ->
+                    json.decodeFromString<ApiErrorResponse>(body)
+                }
+        } catch (_: Exception) {
+            null
+        }
+
+        val error = when (apiError?.code) {
+            "INVALID_CREDENTIALS" -> {
+                AuthError.InvalidCredentials
+            }
+
+            "USERNAME_ALREADY_EXISTS" -> {
+                AuthError.UsernameAlreadyExists
+            }
+
+            "INVALID_REGISTRATION" -> {
+                AuthError.InvalidRegistration(
+                    message = apiError.message,
+                )
+            }
+
+            else -> {
+                AuthError.Server(
+                    statusCode = exception.code(),
+                    message = apiError?.message,
+                )
+            }
+        }
+
+        return AuthException(
+            error = error,
+            cause = exception,
         )
     }
 }

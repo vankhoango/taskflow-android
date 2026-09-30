@@ -22,6 +22,7 @@ package com.example.taskflow.auth.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.taskflow.auth.domain.AuthException
 import com.example.taskflow.auth.domain.usecase.RegisterUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -57,6 +58,11 @@ class SignUpViewModel @Inject constructor(
                     password = event.password,
                 )
             }
+            SignUpUiEvent.LoginClicked -> {
+                viewModelScope.launch {
+                    _effects.emit(SignUpUiEffect.NavigateToLogin)
+                }
+            }
         }
     }
 
@@ -66,7 +72,7 @@ class SignUpViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             _uiState.update {
-                it.copy(isSubmitting = true)
+                it.copy(isSubmitting = true, error = null)
             }
 
             try {
@@ -80,13 +86,12 @@ class SignUpViewModel @Inject constructor(
                         username = user.username,
                     )
                 )
-            } catch (e: Exception) {
-                _effects.emit(
-                    SignUpUiEffect.RegistrationFailed(
-                        message = e.message
-                            ?: "Registration failed",
+            } catch (e: AuthException) {
+                _uiState.update {
+                    it.copy(
+                        error = e.error,
                     )
-                )
+                }
             } finally {
                 _uiState.update {
                     it.copy(isSubmitting = false)

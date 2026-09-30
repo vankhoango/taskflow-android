@@ -30,6 +30,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -80,7 +81,10 @@ internal fun LoginScreen(
                 .fillMaxSize().padding(12.dp)
                 .imePadding()
                 .verticalScroll(scrollState),
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.spacedBy(
+                space = 24.dp,
+                alignment = Alignment.CenterVertically
+            ),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
@@ -88,12 +92,18 @@ internal fun LoginScreen(
                 style = MaterialTheme.typography.headlineMedium
             )
 
+            state.error?.let {
+                Text(text = it.toMessage().asString(),
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+
             LoginCard(
                 state.isSubmitting,
                 onLoginClicked = { username, password ->
                     onEvent(LoginUiEvent.LoginClicked(username, password))
                 },
-                Modifier.fillMaxWidth().padding(24.dp)
+                Modifier.fillMaxWidth().padding(horizontal = 24.dp)
             )
 
             TextButton(
@@ -117,7 +127,7 @@ fun LoginCard(
         mutableStateOf("")
     }
 
-    var password by rememberSaveable {
+    var password by remember {
         mutableStateOf("")
     }
 

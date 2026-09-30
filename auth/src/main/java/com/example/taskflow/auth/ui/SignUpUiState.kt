@@ -20,7 +20,9 @@
 
 package com.example.taskflow.auth.ui
 
+import com.example.taskflow.auth.domain.AuthError
+
 data class SignUpUiState (
     val isSubmitting: Boolean = false,
-
-)
+    val error: AuthError? = null,
+    )

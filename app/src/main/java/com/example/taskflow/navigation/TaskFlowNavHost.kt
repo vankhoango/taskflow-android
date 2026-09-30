@@ -58,6 +58,9 @@ fun TaskFlowNavHost(navController: NavHostController) {
                 onRegistrationSucceeded = {
                     navController.popBackStack()
                 },
+                onLoginClicked = {
+                    navController.popBackStack()
+                }
             )
         }
 

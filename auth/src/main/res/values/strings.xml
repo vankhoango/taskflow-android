@@ -27,4 +27,14 @@
     <string name="sign_up">Sign Up</string>
     <string name="log_in">Log In</string>
     <string name="create_an_account">Create an account</string>
+    <string name="password_show">Show password</string>
+    <string name="password_hide">Hide password</string>
+    <string name="sign_up_already_have_account">Already have an account?</string>
+    <string name="auth_error_invalid_credentials">Invalid username or password.</string>
+    <string name="auth_error_username_already_exists">That username is already registered.</string>
+    <string name="auth_error_network">Unable to connect to the server. Check your network connection.</string>
+    <string name="auth_error_timeout">The request timed out. Please try again.</string>
+    <string name="auth_error_server">Server error (HTTP %1$d).</string>
+    <string name="auth_error_unknown">An unexpected error occurred.</string>
+
 </resources>

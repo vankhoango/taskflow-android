@@ -78,4 +78,12 @@ object NetworkModule {
             .client(httpClient)
             .build()
     }
+
+    @Provides
+    @Singleton
+    fun provideJson(): Json {
+        return Json {
+            ignoreUnknownKeys = true
+        }
+    }
 }

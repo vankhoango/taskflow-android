@@ -46,9 +46,6 @@ fun LoginRoute(
                     )
                 }
 
-                is LoginUiEffect.LoginFailed -> {
-                    // Proper error UI comes shortly.
-                }
             }
         }
     }

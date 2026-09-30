@@ -31,6 +31,7 @@ import com.example.taskflow.auth.ui.SignUpViewModel
 @Composable
 fun SignUpRoute(
     onRegistrationSucceeded: (String) -> Unit,
+    onLoginClicked: () -> Unit,
     viewModel: SignUpViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -43,9 +44,8 @@ fun SignUpRoute(
                         effect.username
                     )
                 }
-
-                is SignUpUiEffect.RegistrationFailed -> {
-                    // We'll surface this properly next.
+                SignUpUiEffect.NavigateToLogin -> {
+                    onLoginClicked()
                 }
             }
         }

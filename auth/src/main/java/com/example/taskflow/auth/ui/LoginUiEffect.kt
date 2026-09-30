@@ -28,7 +28,4 @@ sealed interface LoginUiEffect {
         val session: AuthSession,
     ) : LoginUiEffect
 
-    data class LoginFailed(
-        val message: String,
-    ) : LoginUiEffect
 }

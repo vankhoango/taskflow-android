@@ -25,4 +25,6 @@ sealed interface SignUpUiEvent {
         val username: String,
         val password: String,
     ) : SignUpUiEvent
+
+    data object LoginClicked: SignUpUiEvent
 }

@@ -26,7 +26,6 @@ sealed interface SignUpUiEffect {
         val username: String,
     ) : SignUpUiEffect
 
-    data class RegistrationFailed(
-        val message: String,
-    ) : SignUpUiEffect
+    data object NavigateToLogin: SignUpUiEffect
+
 }
