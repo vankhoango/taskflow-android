@@ -24,14 +24,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.example.taskflow.navigation.TaskFlowNavHost
-import com.example.taskflow.projects.ui.ProjectsRoute
-import com.example.taskflow.tasks.ui.TaskRoute
+import com.example.taskflow.ui.TaskFlowViewModel
 import com.example.taskflow.ui.theme.TaskFlowTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -44,8 +41,12 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             TaskFlowTheme {
+
+                val viewModel: TaskFlowViewModel = hiltViewModel()
+                val authState = viewModel.authState.collectAsStateWithLifecycle()
+
                 val navController = rememberNavController()
-                TaskFlowNavHost(navController)
+                TaskFlowNavHost(navController, authState.value)
             }
         }
     }

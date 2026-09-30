@@ -22,51 +22,77 @@ package com.example.taskflow.navigation
 
 import SignUpRoute
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.taskflow.auth.ui.AuthGateRoute
+import com.example.taskflow.auth.domain.AuthState
 import com.example.taskflow.auth.ui.LoginRoute
 import com.example.taskflow.navigation.TaskFlowDestination.SIGN_UP
 import com.example.taskflow.projects.ui.ProjectsRoute
 import com.example.taskflow.tasks.ui.TaskRoute
 
 @Composable
-fun TaskFlowNavHost(navController: NavHostController) {
-    NavHost(
-        navController = navController,
-        startDestination = TaskFlowDestination.AUTH_GATE
-    ) {
+fun TaskFlowNavHost(navController: NavHostController, authState: AuthState) {
 
-        composable(
-            route = TaskFlowDestination.AUTH_GATE,
-        ) {
-            AuthGateRoute (
-                onAuthenticated = {
+    LaunchedEffect(authState) {
+        when (authState) {
+            AuthState.Loading -> {
+                // Wait until DataStore has been read.
+            }
+
+            AuthState.Unauthenticated -> {
+                navController.navigate(
+                    TaskFlowDestination.LOGIN
+                ) {
+                    popUpTo(
+                        navController.graph.id
+                    ) {
+                        inclusive = true
+                    }
+
+                    launchSingleTop = true
+                }
+            }
+
+            is AuthState.Authenticated -> {
+                val currentRoute =
+                    navController.currentDestination?.route
+
+                if (
+                    currentRoute ==
+                    TaskFlowDestination.AUTH_GATE ||
+                    currentRoute ==
+                    TaskFlowDestination.LOGIN ||
+                    currentRoute ==
+                    TaskFlowDestination.SIGN_UP
+                ) {
                     navController.navigate(
                         TaskFlowDestination.PROJECTS
                     ) {
                         popUpTo(
-                            TaskFlowDestination.AUTH_GATE
+                            navController.graph.id
                         ) {
                             inclusive = true
                         }
+
+                        launchSingleTop = true
                     }
-                },
-                onUnauthenticated = {
-                    navController.navigate(
-                        TaskFlowDestination.LOGIN
-                    ) {
-                        popUpTo(
-                            TaskFlowDestination.AUTH_GATE
-                        ) {
-                            inclusive = true
-                        }
-                    }
-                },
-            )
+                }
+            }
+        }
+    }
+
+    NavHost(
+        navController = navController,
+        startDestination = if (authState is AuthState.Authenticated) TaskFlowDestination.PROJECTS
+                            else TaskFlowDestination.LOGIN
+    ) {
+        composable(
+            route = TaskFlowDestination.AUTH_GATE,
+        ) {
         }
 
         composable (

@@ -71,8 +71,9 @@ dependencies {
 
     implementation(libs.androidx.navigation.compose)
 
-
+    //hilt
     implementation(libs.dagger.hilt)
     ksp(libs.dagger.hilt.compiler)
+    implementation(libs.hilt.navigation.compose)
 
 }

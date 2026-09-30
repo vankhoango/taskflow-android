@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-package com.example.taskflow.auth.ui
+package com.example.taskflow.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -31,7 +31,7 @@ import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
-class AuthGateViewModel @Inject constructor(
+class TaskFlowViewModel @Inject constructor(
     observeAuthStateUseCase: ObserveAuthStateUseCase,
 ) : ViewModel() {
 
