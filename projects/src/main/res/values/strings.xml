@@ -41,4 +41,6 @@
     <string name="error_server">Server Error</string>
     <string name="error_database">Database Error</string>
     <string name="error_unknown">Unknown Error</string>
+
+    <string name="logout">Logout</string>
 </resources>

@@ -73,9 +73,6 @@ class ProjectViewModel @Inject constructor(
             ProjectUiEvent.SaveProjectClicked -> {
                 saveProject()
             }
-            is ProjectUiEvent.ProjectDetailsClicked -> {
-                onProjectDetailsClicked(event.projectId)
-            }
             is ProjectUiEvent.EditProjectClicked -> {
                 startEditingProject(event.project)
             }

@@ -46,7 +46,7 @@ class MainActivity : ComponentActivity() {
                 val authState = viewModel.authState.collectAsStateWithLifecycle()
 
                 val navController = rememberNavController()
-                TaskFlowNavHost(navController, authState.value)
+                TaskFlowNavHost(navController, authState.value, onLogout = viewModel::logout)
             }
         }
     }

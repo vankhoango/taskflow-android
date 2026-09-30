@@ -35,7 +35,7 @@ import com.example.taskflow.projects.ui.ProjectsRoute
 import com.example.taskflow.tasks.ui.TaskRoute
 
 @Composable
-fun TaskFlowNavHost(navController: NavHostController, authState: AuthState) {
+fun TaskFlowNavHost(navController: NavHostController, authState: AuthState, onLogout: () -> Unit) {
 
     LaunchedEffect(authState) {
         when (authState) {
@@ -135,7 +135,8 @@ fun TaskFlowNavHost(navController: NavHostController, authState: AuthState) {
             ProjectsRoute(
                 onProjectDetailsClick = {
                     navController.navigate(TaskFlowDestination.tasks(it))
-                }
+                },
+                onLogoutClicked = onLogout
             )
         }
 

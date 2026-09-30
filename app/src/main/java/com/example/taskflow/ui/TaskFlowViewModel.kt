@@ -23,17 +23,20 @@ package com.example.taskflow.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.taskflow.auth.domain.AuthState
+import com.example.taskflow.auth.domain.usecase.LogoutUseCase
 import com.example.taskflow.auth.domain.usecase.ObserveAuthStateUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class TaskFlowViewModel @Inject constructor(
     observeAuthStateUseCase: ObserveAuthStateUseCase,
-) : ViewModel() {
+    private val logoutUseCase: LogoutUseCase,
+    ) : ViewModel() {
 
     val authState: StateFlow<AuthState> =
         observeAuthStateUseCase()
@@ -42,4 +45,10 @@ class TaskFlowViewModel @Inject constructor(
                 started = SharingStarted.WhileSubscribed(5_000),
                 initialValue = AuthState.Loading,
             )
+
+    fun logout() {
+        viewModelScope.launch {
+            logoutUseCase()
+        }
+    }
 }

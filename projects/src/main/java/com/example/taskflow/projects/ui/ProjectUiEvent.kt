@@ -26,7 +26,6 @@ sealed interface ProjectUiEvent {
     data object AddProjectClicked : ProjectUiEvent
     data class ProjectNameChanged (val name: String): ProjectUiEvent
     data object SaveProjectClicked: ProjectUiEvent
-    data class ProjectDetailsClicked(val projectId: Long): ProjectUiEvent
     data class EditProjectClicked (val project: Project): ProjectUiEvent
     data object CancelEditClicked: ProjectUiEvent
     data class DeleteProjectClicked (val projectId: Long): ProjectUiEvent

@@ -22,33 +22,25 @@ package com.example.taskflow.projects.ui
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -57,15 +49,13 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.example.taskflow.core.network.R
+import com.example.taskflow.projects.R
 import com.example.taskflow.projects.R.string.add_project
 import com.example.taskflow.projects.R.string.cancel
 import com.example.taskflow.projects.R.string.delete
@@ -76,7 +66,6 @@ import com.example.taskflow.projects.R.string.edit_project
 import com.example.taskflow.projects.R.string.name
 import com.example.taskflow.projects.R.string.projects
 import com.example.taskflow.projects.R.string.save
-import com.example.taskflow.projects.domain.Project
 import kotlinx.coroutines.flow.SharedFlow
 
 @SuppressLint("LocalContextGetResourceValueCall")
@@ -87,6 +76,8 @@ fun ProjectsScreen(
     uiEffect: SharedFlow<ProjectUiEffect>,
     onEvent: (ProjectUiEvent) -> Unit,
     modifier: Modifier = Modifier,
+    onProjectDetailsClick: (Long) -> Unit,
+    onLogoutClicked: () -> Unit,
 ) {
     val snackbar = remember { SnackbarHostState() }
     val context = LocalContext.current
@@ -113,7 +104,17 @@ fun ProjectsScreen(
                 title = {
                     Text(stringResource(projects),
                         style = MaterialTheme.typography.titleLarge)
-                }
+                },
+                actions = {
+                    IconButton (
+                        onClick = onLogoutClicked,
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.Logout,
+                            contentDescription = stringResource(R.string.logout),
+                        )
+                    }
+                },
             )
         },
         floatingActionButton = {
@@ -124,7 +125,7 @@ fun ProjectsScreen(
                 Icon(Icons.Filled.Add, stringResource(add_project))
             }
         },
-        snackbarHost = { SnackbarHost(snackbar) }
+        snackbarHost = { SnackbarHost(snackbar) },
     ) { innerPadding ->
         LazyColumn (
             modifier = modifier
@@ -140,7 +141,7 @@ fun ProjectsScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
-                                onEvent(ProjectUiEvent.ProjectDetailsClicked(project.id))
+                                onProjectDetailsClick(project.id)
                             }
                             .padding(vertical = 8.dp),
                         verticalAlignment = Alignment.CenterVertically,
