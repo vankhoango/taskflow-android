@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -35,7 +36,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.taskflow.auth.R
@@ -66,13 +69,8 @@ internal fun LoginScreen(
     onEvent: (LoginUiEvent) -> Unit,
     onSignUpClicked: () -> Unit,
 ) {
-    var username by rememberSaveable {
-        mutableStateOf("")
-    }
 
-    var password by rememberSaveable {
-        mutableStateOf("")
-    }
+    val scrollState = rememberScrollState()
 
     Scaffold() { innerPadding ->
         Column(
@@ -81,7 +79,7 @@ internal fun LoginScreen(
                 .consumeWindowInsets(innerPadding)
                 .fillMaxSize().padding(12.dp)
                 .imePadding()
-                .verticalScroll(rememberScrollState()),
+                .verticalScroll(scrollState),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -90,78 +88,95 @@ internal fun LoginScreen(
                 style = MaterialTheme.typography.headlineMedium
             )
 
-            Card(
-                modifier = Modifier.fillMaxWidth().padding(24.dp)
-            ) {
-                Column(modifier = Modifier.padding(36.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    OutlinedTextField(
-                        leadingIcon = {
-                            Icon(
-                                Icons.Default.Person,
-                                contentDescription = stringResource(id = R.string.username)
-                            )
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        value = username,
-                        onValueChange = {
-                            username = it
-                        },
-                        label = {
-                            Text(stringResource(R.string.username))
-                        },
-                        singleLine = true,
-                    )
-
-                    OutlinedTextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = password,
-                        leadingIcon = {
-                            Icon(
-                                Icons.Default.Password,
-                                contentDescription = stringResource(id = R.string.password)
-                            )
-                        },
-                        onValueChange = {
-                            password = it
-                        },
-                        label = {
-                            Text(stringResource(R.string.password))
-                        },
-                        singleLine = true,
-                        visualTransformation = PasswordVisualTransformation(),
-                    )
-
-                    val canLogin = username.isNotBlank() &&
-                            password.isNotEmpty() &&
-                            !state.isSubmitting
-
-                    Button(
-                        modifier = Modifier.fillMaxWidth().height(48.dp),
-                        enabled = canLogin,
-                        onClick = {
-                            onEvent(
-                                LoginUiEvent.LoginClicked(
-                                    username = username,
-                                    password = password,
-                                )
-                            )
-                        },
-                    ) {
-                        if (state.isSubmitting) {
-                            CircularProgressIndicator(modifier = Modifier.size(24.dp))
-                        } else {
-                            Text(stringResource(R.string.log_in))
-                        }
-                    }
-                }
-            }
+            LoginCard(
+                state.isSubmitting,
+                onLoginClicked = { username, password ->
+                    onEvent(LoginUiEvent.LoginClicked(username, password))
+                },
+                Modifier.fillMaxWidth().padding(24.dp)
+            )
 
             TextButton(
                 enabled = !state.isSubmitting,
                 onClick = onSignUpClicked,
             ) {
-                Text(text = stringResource(R.string.create_an_account))
+                Text(text = stringResource(R.string.create_an_account),
+                    textDecoration = TextDecoration.Underline)
+            }
+        }
+    }
+}
+
+@Composable
+fun LoginCard(
+    isLoggingIn: Boolean,
+    onLoginClicked: (String, String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var username by rememberSaveable {
+        mutableStateOf("")
+    }
+
+    var password by rememberSaveable {
+        mutableStateOf("")
+    }
+
+    ElevatedCard(
+        modifier = modifier
+    ) {
+        Column(modifier = Modifier.padding(36.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            OutlinedTextField(
+                leadingIcon = {
+                    Icon(
+                        Icons.Default.Person,
+                        contentDescription = stringResource(id = R.string.username)
+                    )
+                },
+                modifier = Modifier.fillMaxWidth(),
+                value = username,
+                onValueChange = {
+                    username = it
+                },
+                label = {
+                    Text(stringResource(R.string.username))
+                },
+                singleLine = true,
+            )
+
+            OutlinedTextField(
+                modifier = Modifier.fillMaxWidth(),
+                value = password,
+                leadingIcon = {
+                    Icon(
+                        Icons.Default.Password,
+                        contentDescription = stringResource(id = R.string.password)
+                    )
+                },
+                onValueChange = {
+                    password = it
+                },
+                label = {
+                    Text(stringResource(R.string.password))
+                },
+                singleLine = true,
+                visualTransformation = PasswordVisualTransformation(),
+            )
+
+            val canLogin = username.isNotBlank() &&
+                    password.isNotEmpty() &&
+                    !isLoggingIn
+
+            Button(
+                modifier = Modifier.fillMaxWidth().height(48.dp),
+                enabled = canLogin,
+                onClick = { onLoginClicked (username, password)},
+            ) {
+                if (isLoggingIn) {
+                    CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                } else {
+                    Text(stringResource(R.string.log_in))
+                }
             }
         }
     }

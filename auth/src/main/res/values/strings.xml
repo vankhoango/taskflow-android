@@ -20,6 +20,7 @@
 
 <resources>
     <string name="taskflow_login">TaskFlow Login</string>
+    <string name="taskflow_signup">TaskFlow Sign Up</string>
     <string name="username">Username</string>
     <string name="password">Password</string>
     <string name="confirm_password">Confirm password</string>
