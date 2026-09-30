@@ -65,6 +65,18 @@ class RemoteAuthDataSource @Inject constructor(
         }
     }
 
+    suspend fun refresh(refreshToken: String, ): RefreshTokenResponse {
+        try {
+            return authApi.refresh(
+                RefreshTokenRequest(
+                    refreshToken = refreshToken,
+                )
+            )
+        } catch (e: Exception) {
+            throw mapException(e)
+        }
+    }
+
     private fun mapException(
         exception: Exception,
     ): AuthException {

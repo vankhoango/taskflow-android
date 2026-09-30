@@ -20,8 +20,8 @@
 
 package com.example.taskflow.core.network
 
-import com.example.taskflow.core.network.auth.AuthenticationFailureInterceptor
 import com.example.taskflow.core.network.auth.AuthenticationInterceptor
+import com.example.taskflow.core.network.auth.TokenAuthenticator
 import com.example.taskflow.core.network.interceptor.AppHeaderInterceptor
 import dagger.Module
 import dagger.Provides
@@ -43,6 +43,7 @@ object NetworkModule {
     private const val BASE_URL =
         "http://192.168.1.50:8080/"
 
+
     @Provides
     @Singleton
     fun provideJson(): Json {
@@ -51,13 +52,17 @@ object NetworkModule {
         }
     }
 
+
     @Provides
     @Singleton
-    fun provideHttpLoggingInterceptor(): HttpLoggingInterceptor {
-        return HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY
+    fun provideHttpLoggingInterceptor():
+            HttpLoggingInterceptor {
 
-            // Do not expose the JWT in Logcat.
+        return HttpLoggingInterceptor().apply {
+            level =
+                HttpLoggingInterceptor.Level.BODY
+
+            // Do not expose JWTs in Logcat.
             redactHeader("Authorization")
         }
     }
@@ -66,19 +71,37 @@ object NetworkModule {
     @Singleton
     fun provideOkHttpClient(
         appHeaderInterceptor: AppHeaderInterceptor,
-        authenticationInterceptor: AuthenticationInterceptor,
-        authenticationFailureInterceptor: AuthenticationFailureInterceptor,
-        httpLoggingInterceptor: HttpLoggingInterceptor,
+        authenticationInterceptor:
+        AuthenticationInterceptor,
+        httpLoggingInterceptor:
+        HttpLoggingInterceptor,
+        tokenAuthenticator: TokenAuthenticator,
     ): OkHttpClient {
+
         return OkHttpClient.Builder()
-            .connectTimeout(10, TimeUnit.SECONDS,)
-            .readTimeout(30, TimeUnit.SECONDS,)
-            .addInterceptor(appHeaderInterceptor)
-            .addInterceptor(authenticationInterceptor)
-            .addInterceptor(authenticationFailureInterceptor)
-            .addInterceptor(httpLoggingInterceptor)
+            .connectTimeout(
+                10,
+                TimeUnit.SECONDS,
+            )
+            .readTimeout(
+                30,
+                TimeUnit.SECONDS,
+            )
+            .addInterceptor(
+                appHeaderInterceptor
+            )
+            .addInterceptor(
+                authenticationInterceptor
+            )
+            .addInterceptor(
+                httpLoggingInterceptor
+            )
+            .authenticator(
+                tokenAuthenticator
+            )
             .build()
     }
+
 
     @Provides
     @Singleton
@@ -86,12 +109,55 @@ object NetworkModule {
         okHttpClient: OkHttpClient,
         json: Json,
     ): Retrofit {
+
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(
                 json.asConverterFactory(
-                    "application/json".toMediaType()
+                    "application/json"
+                        .toMediaType()
+                )
+            )
+            .build()
+    }
+
+
+    @Provides
+    @Singleton
+    @AuthRetrofit
+    fun provideAuthRetrofit(
+        json: Json,
+        appHeaderInterceptor: AppHeaderInterceptor,
+        httpLoggingInterceptor:
+        HttpLoggingInterceptor,
+    ): Retrofit {
+
+        val authOkHttpClient =
+            OkHttpClient.Builder()
+                .connectTimeout(
+                    10,
+                    TimeUnit.SECONDS,
+                )
+                .readTimeout(
+                    30,
+                    TimeUnit.SECONDS,
+                )
+                .addInterceptor(
+                    appHeaderInterceptor
+                )
+                .addInterceptor(
+                    httpLoggingInterceptor
+                )
+                .build()
+
+        return Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .client(authOkHttpClient)
+            .addConverterFactory(
+                json.asConverterFactory(
+                    "application/json"
+                        .toMediaType()
                 )
             )
             .build()

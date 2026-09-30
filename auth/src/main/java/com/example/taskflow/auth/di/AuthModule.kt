@@ -21,12 +21,15 @@
 package com.example.taskflow.auth.di
 
 import com.example.taskflow.auth.data.AuthRepositoryImpl
+import com.example.taskflow.auth.data.TokenRefresherImpl
 import com.example.taskflow.auth.data.local.SessionManager
 import com.example.taskflow.auth.data.local.SessionManagerImpl
 import com.example.taskflow.auth.data.remote.AuthApi
 import com.example.taskflow.auth.domain.AuthRepository
+import com.example.taskflow.core.network.AuthRetrofit
 import com.example.taskflow.core.network.auth.AccessTokenProvider
 import com.example.taskflow.core.network.auth.AuthenticationFailureHandler
+import com.example.taskflow.core.network.auth.TokenRefresher
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -63,12 +66,18 @@ abstract class AuthModule {
         implementation: SessionManagerImpl,
     ): AuthenticationFailureHandler
 
+    @Binds
+    @Singleton
+    abstract fun bindTokenRefresher(
+        implementation: TokenRefresherImpl,
+    ): TokenRefresher
+
     companion object {
 
         @Provides
         @Singleton
         fun provideAuthApi(
-            retrofit: Retrofit,
+            @AuthRetrofit retrofit: Retrofit,
         ): AuthApi {
             return retrofit.create(AuthApi::class.java)
         }

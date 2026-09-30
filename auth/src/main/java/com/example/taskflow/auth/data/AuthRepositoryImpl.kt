@@ -83,4 +83,45 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun logout() {
         sessionManager.clearSession()
     }
+
+    override suspend fun refreshSession(): Boolean {
+        val authState =
+            sessionManager.authState.value
+
+        if (authState !is AuthState.Authenticated) {
+            return false
+        }
+
+        val currentSession =
+            authState.session
+
+        return try {
+            val response =
+                remoteAuthDataSource.refresh(
+                    currentSession.refreshToken
+                )
+
+            val nowEpochSeconds =
+                System.currentTimeMillis() / 1_000
+
+            val updatedSession =
+                currentSession.copy(
+                    accessToken =
+                        response.accessToken,
+                    tokenType =
+                        response.tokenType,
+                    expiresAtEpochSeconds =
+                        nowEpochSeconds +
+                                response.expiresIn,
+                )
+
+            sessionManager.saveSession(
+                updatedSession
+            )
+
+            true
+        } catch (exception: Exception) {
+            false
+        }
+    }
 }
