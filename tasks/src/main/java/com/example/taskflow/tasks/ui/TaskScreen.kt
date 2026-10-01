@@ -278,11 +278,11 @@ private fun TaskListView(
     Column(
         modifier = modifier.padding(horizontal = 12.dp)
     ) {
-        Text("TaskFlow")
 
-        Row(modifier = Modifier.fillMaxWidth()) {
+        Row(modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically) {
             Text(
-                "Compeleted Tasks: ${state.completedCount} / ${state.tasks.size}",
+                stringResource(R.string.completeds_tasks, state.completedCount, state.tasks.size),
                 modifier = Modifier.weight(1.0f)
             )
             Spacer(modifier = Modifier.width(12.dp))
@@ -291,13 +291,13 @@ private fun TaskListView(
                     onEvent(TaskUiEvent.ClearCompletedClick)
                 }
             ) {
-                Text("Clear")
+                Text(stringResource(R.string.clear))
             }
         }
 
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(12.dp),
-            contentPadding = PaddingValues(bottom = 56.dp)
+            contentPadding = PaddingValues(bottom = 84.dp)
         ) {
             items(state.tasks) {
                 TaskItem(

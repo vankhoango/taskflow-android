@@ -28,6 +28,8 @@
     <string name="cancel">Cancel</string>
     <string name="task">Task</string>
     <string name="add">Add</string>
+    <string name="completeds_tasks">Compeleted Tasks %1$d / %2$d</string>
+    <string name="clear">Clear</string>
     <string name="error_saving_task">Couldn\'t save task</string>
     <string name="error_invalid_title">Invalid task title: must be 3 to 100 characters long.</string>
     <string name="error_network">Network Unavailable</string>
