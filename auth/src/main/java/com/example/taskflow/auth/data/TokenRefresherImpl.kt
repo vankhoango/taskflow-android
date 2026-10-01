@@ -26,7 +26,6 @@ import com.example.taskflow.auth.domain.AuthState
 import com.example.taskflow.core.network.auth.AuthenticationFailureHandler
 import com.example.taskflow.core.network.auth.TokenRefresher
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.runBlocking
 import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
@@ -60,7 +59,10 @@ class TokenRefresherImpl @Inject constructor(
                 val state =
                     sessionManager.authState.value
 
-                if (state !is AuthState.Authenticated) {
+                if (
+                    state !is
+                            AuthState.Authenticated
+                ) {
                     return@runBlocking null
                 }
 
@@ -76,27 +78,7 @@ class TokenRefresherImpl @Inject constructor(
                     return@runBlocking currentAccessToken
                 }
 
-                val refreshed =
-                    authRepository
-                        .refreshSession()
-
-                if (!refreshed) {
-                    return@runBlocking null
-                }
-
-                val updatedState =
-                    sessionManager.authState.value
-
-                if (
-                    updatedState !is
-                            AuthState.Authenticated
-                ) {
-                    return@runBlocking null
-                }
-
-                updatedState
-                    .session
-                    .accessToken
+                authRepository.refreshSession()
             } catch (exception: HttpException) {
                 if (exception.code() == 401) {
                     authenticationFailureHandler
@@ -105,8 +87,6 @@ class TokenRefresherImpl @Inject constructor(
 
                 null
             } catch (exception: IOException) {
-                // Network failure does not mean
-                // the session is invalid.
                 null
             }
         }

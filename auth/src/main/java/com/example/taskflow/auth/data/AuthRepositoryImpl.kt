@@ -84,14 +84,14 @@ class AuthRepositoryImpl @Inject constructor(
         sessionManager.clearSession()
     }
 
-    override suspend fun refreshSession(): Boolean {
+    override suspend fun refreshSession(): String? {
         val authState =
             sessionManager.authState.value
 
         if (
             authState !is AuthState.Authenticated
         ) {
-            return false
+            return null
         }
 
         val currentSession =
@@ -107,10 +107,8 @@ class AuthRepositoryImpl @Inject constructor(
 
         val updatedSession =
             currentSession.copy(
-                accessToken =
-                    response.accessToken,
-                tokenType =
-                    response.tokenType,
+                accessToken = response.accessToken,
+                tokenType = response.tokenType,
                 expiresAtEpochSeconds =
                     nowEpochSeconds +
                             response.expiresIn,
@@ -120,6 +118,6 @@ class AuthRepositoryImpl @Inject constructor(
             updatedSession
         )
 
-        return true
+        return response.accessToken
     }
 }

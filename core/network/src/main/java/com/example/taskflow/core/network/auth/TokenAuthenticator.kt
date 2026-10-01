@@ -20,6 +20,7 @@
 
 package com.example.taskflow.core.network.auth
 
+import android.util.Log
 import okhttp3.Authenticator
 import okhttp3.Request
 import okhttp3.Response
@@ -44,25 +45,39 @@ class TokenAuthenticator @Inject constructor(
         val authorizationHeader =
             response.request.header(
                 "Authorization"
-            ) ?: return null
+            )
+
+        authorizationHeader ?: return null
 
         val failedAccessToken =
             authorizationHeader
                 .removePrefix("Bearer ")
                 .takeIf { it.isNotBlank() }
-                ?: return null
+
+        failedAccessToken ?: return null
 
         val newAccessToken =
-            tokenRefresher.refreshToken(failedAccessToken)
-                ?: return null
-
-        return response.request
-            .newBuilder()
-            .header(
-                "Authorization",
-                "Bearer $newAccessToken",
+            tokenRefresher.refreshToken(
+                failedAccessToken
             )
-            .build()
+
+        newAccessToken ?: return null
+
+        val retryRequest =
+            response.request
+                .newBuilder()
+                .header(
+                    "Authorization",
+                    "Bearer $newAccessToken",
+                )
+                .build()
+
+        val retryToken =
+            retryRequest
+                .header("Authorization")
+                ?.removePrefix("Bearer ")
+
+        return retryRequest
     }
 
     private fun responseCount(

@@ -37,7 +37,7 @@ interface AuthRepository {
         password: String,
     ): AuthSession
 
-    suspend fun refreshSession(): Boolean
+    suspend fun refreshSession(): String?
 
     fun observeSession(): StateFlow<AuthState>
 
