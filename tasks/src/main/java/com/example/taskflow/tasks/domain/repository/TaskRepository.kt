@@ -34,4 +34,6 @@ internal interface TaskRepository {
     suspend fun updateTask(taskId: Long, title: String?, completed: Boolean?)
 
     suspend fun deleteTask(taskId: Long)
+
+    suspend fun clearCompletedTasks(projectId: Long)
 }

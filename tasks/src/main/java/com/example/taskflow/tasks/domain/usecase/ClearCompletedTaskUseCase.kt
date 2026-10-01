@@ -26,8 +26,7 @@ import javax.inject.Inject
 internal class ClearCompletedTaskUseCase
     @Inject
     constructor (private val repository: TaskRepository) {
-    operator suspend fun invoke() {
-        //repository.deleteTask()
-        throw NotImplementedError()
+    operator suspend fun invoke(projectId: Long) {
+        repository.clearCompletedTasks(projectId)
     }
 }

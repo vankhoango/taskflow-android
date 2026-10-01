@@ -49,4 +49,9 @@ interface TaskApi {
     suspend fun deleteTask(
         @Path("taskId") taskId: Long,
     )
+
+    @DELETE("projects/{projectId}/tasks/completed")
+    suspend fun clearCompletedTasks(
+        @Path("projectId") projectId: Long,
+    )
 }

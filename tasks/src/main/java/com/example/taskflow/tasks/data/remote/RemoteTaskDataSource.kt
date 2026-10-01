@@ -96,4 +96,12 @@ internal class RemoteTaskDataSource @Inject constructor (
         }
     }
 
+    suspend fun deleteCompletedTasks(projectId: Long) {
+        try {
+            remoteApi.clearCompletedTasks(projectId)
+        } catch (e: Exception) {
+            throw mapException(e)
+        }
+    }
+
 }

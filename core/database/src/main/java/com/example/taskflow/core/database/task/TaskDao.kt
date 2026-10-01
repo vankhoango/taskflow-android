@@ -73,4 +73,15 @@ interface TaskDao {
         insertTasks(tasks)
     }
 
+    @Query(
+        """
+    DELETE FROM tasks
+    WHERE projectId = :projectId
+      AND completed = 1
+    """
+    )
+    suspend fun deleteCompletedTasks(
+        projectId: Long,
+    )
+
 }

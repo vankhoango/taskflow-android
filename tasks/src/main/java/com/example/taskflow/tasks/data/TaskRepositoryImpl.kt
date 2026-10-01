@@ -72,4 +72,14 @@ constructor(
         localDataSource.deleteTask(taskId)
     }
 
+    override suspend fun clearCompletedTasks(
+        projectId: Long,
+    ) {
+        remoteDataSource.deleteCompletedTasks(projectId = projectId,)
+
+        localDataSource.deleteCompletedTasks(
+            projectId = projectId,
+        )
+    }
+
 }

@@ -277,7 +277,7 @@ internal class TaskViewModel @Inject constructor (
 
     private fun clearCompletedTasks() {
         viewModelScope.launch {
-            clearCompletedTaskUseCase()
+            clearCompletedTaskUseCase(projectId)
         }
     }
 

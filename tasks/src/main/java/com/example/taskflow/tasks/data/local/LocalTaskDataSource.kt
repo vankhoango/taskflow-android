@@ -121,4 +121,16 @@ internal class LocalTaskDataSource
                 cause = e)
         }
     }
+
+    suspend fun deleteCompletedTasks(
+        projectId: Long,
+    ) {
+        try {
+            taskDao.deleteCompletedTasks(
+                projectId = projectId,
+            )
+        } catch (e: SQLiteException) {
+            throw mapException(e)
+        }
+    }
 }
