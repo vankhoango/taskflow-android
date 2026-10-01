@@ -37,19 +37,23 @@ class TokenAuthenticator @Inject constructor(
         response: Response,
     ): Request? {
 
-        if (
-            response.request.url.encodedPath ==
-            "/auth/refresh"
-        ) {
-            return null
-        }
-
         if (responseCount(response) >= 2) {
             return null
         }
 
+        val authorizationHeader =
+            response.request.header(
+                "Authorization"
+            ) ?: return null
+
+        val failedAccessToken =
+            authorizationHeader
+                .removePrefix("Bearer ")
+                .takeIf { it.isNotBlank() }
+                ?: return null
+
         val newAccessToken =
-            tokenRefresher.refreshToken()
+            tokenRefresher.refreshToken(failedAccessToken)
                 ?: return null
 
         return response.request

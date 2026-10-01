@@ -21,5 +21,8 @@
 package com.example.taskflow.core.network.auth
 
 interface TokenRefresher {
-    fun refreshToken(): String?
+
+    fun refreshToken(
+        failedAccessToken: String,
+    ): String?
 }

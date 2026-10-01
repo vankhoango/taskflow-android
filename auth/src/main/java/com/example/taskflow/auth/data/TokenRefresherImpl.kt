@@ -26,6 +26,7 @@ import com.example.taskflow.auth.domain.AuthState
 import com.example.taskflow.core.network.auth.AuthenticationFailureHandler
 import com.example.taskflow.core.network.auth.TokenRefresher
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.runBlocking
 import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
@@ -39,26 +40,63 @@ class TokenRefresherImpl @Inject constructor(
     AuthenticationFailureHandler,
 ) : TokenRefresher {
 
-    override fun refreshToken(): String? =
+    private val refreshLock = Any()
+
+    override fun refreshToken(
+        failedAccessToken: String,
+    ): String? {
+        return synchronized(refreshLock) {
+            refreshTokenSynchronized(
+                failedAccessToken
+            )
+        }
+    }
+
+    private fun refreshTokenSynchronized(
+        failedAccessToken: String,
+    ): String? =
         runBlocking {
             try {
+                val state =
+                    sessionManager.authState.value
+
+                if (state !is AuthState.Authenticated) {
+                    return@runBlocking null
+                }
+
+                val currentAccessToken =
+                    state.session.accessToken
+
+                // Another request already refreshed
+                // this access token.
+                if (
+                    currentAccessToken !=
+                    failedAccessToken
+                ) {
+                    return@runBlocking currentAccessToken
+                }
+
                 val refreshed =
-                    authRepository.refreshSession()
+                    authRepository
+                        .refreshSession()
 
                 if (!refreshed) {
                     return@runBlocking null
                 }
 
-                val state =
+                val updatedState =
                     sessionManager.authState.value
 
                 if (
-                    state !is AuthState.Authenticated
+                    updatedState !is
+                            AuthState.Authenticated
                 ) {
                     return@runBlocking null
                 }
 
-                state.session.accessToken
+                updatedState
+                    .session
+                    .accessToken
             } catch (exception: HttpException) {
                 if (exception.code() == 401) {
                     authenticationFailureHandler
@@ -67,9 +105,8 @@ class TokenRefresherImpl @Inject constructor(
 
                 null
             } catch (exception: IOException) {
-                // Network problem.
-                //
-                // Do NOT log the user out.
+                // Network failure does not mean
+                // the session is invalid.
                 null
             }
         }
